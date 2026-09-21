@@ -1,12 +1,13 @@
 """
 Silero VAD v5 ONNX Implementation & Speech Segmentation Adapter for VerbaClear.
 Implements VoiceActivityDetectorPort for sub-millisecond voice activity detection and audio windowing.
+Accurately maintains the 64-sample context buffer and (2, 1, 128) recurrent hidden state.
 """
 
 import logging
 import os
 from pathlib import Path
-from typing import Generator, List, Optional, Tuple
+from typing import List, Optional, Tuple
 import numpy as np
 import urllib.request
 
@@ -21,8 +22,8 @@ SILERO_VAD_ONNX_URL = (
 
 class SileroVAD(VoiceActivityDetectorPort):
     """
-    Evaluates speech probability on 30ms (480 samples @ 16kHz) audio slices using ONNX runtime.
-    Maintains recurrent hidden states across continuous audio chunks.
+    Evaluates speech probability on 32ms (512 samples @ 16kHz) audio slices using ONNX runtime.
+    Maintains recurrent hidden states and context buffers across continuous audio frames.
     """
 
     def __init__(
@@ -33,6 +34,8 @@ class SileroVAD(VoiceActivityDetectorPort):
     ):
         self.sample_rate = sample_rate
         self.threshold = threshold
+        self.window_size = 512 if sample_rate == 16000 else 256
+        self.context_size = 64 if sample_rate == 16000 else 32
 
         if model_path is None:
             cache_dir = Path.home() / ".cache" / "verbaclear" / "models"
@@ -69,14 +72,16 @@ class SileroVAD(VoiceActivityDetectorPort):
         )
 
     def reset_state(self) -> None:
-        """Resets the recurrent hidden state tensor between discontinuous audio streams."""
+        """Resets the recurrent hidden state and context tensors between discontinuous audio streams."""
         # Silero V5 hidden state shape: (2, 1, 128) float32
         self._state = np.zeros((2, 1, 128), dtype=np.float32)
+        # Silero V5 context shape: (1, 64) float32
+        self._context = np.zeros((1, self.context_size), dtype=np.float32)
 
     def is_speech(self, audio_frame: np.ndarray, threshold: Optional[float] = None) -> bool:
         """
         Evaluates whether an audio slice contains human vocal activity.
-        audio_frame must be 1D float32 of length 480 (30ms @ 16kHz) or 512.
+        audio_frame is normalized 1D float32.
         """
         prob, _ = self.evaluate_probability(audio_frame)
         active_thresh = threshold if threshold is not None else self.threshold
@@ -85,34 +90,42 @@ class SileroVAD(VoiceActivityDetectorPort):
     def evaluate_probability(self, audio_frame: np.ndarray) -> Tuple[float, np.ndarray]:
         """
         Returns (speech_probability, updated_hidden_state).
+        Prepends the 64-sample context buffer to the 512-sample chunk (yielding 576 samples).
         """
-        if len(audio_frame) != 480 and len(audio_frame) != 512:
-            # Pad or truncate to 512 if necessary for VAD input compatibility
-            if len(audio_frame) < 512:
-                audio_input = np.pad(audio_frame, (0, 512 - len(audio_frame)), mode="constant")
-            else:
-                audio_input = audio_frame[:512]
+        # Ensure audio_frame is exactly window_size (512 samples @ 16kHz)
+        if len(audio_frame) < self.window_size:
+            chunk = np.pad(audio_frame, (0, self.window_size - len(audio_frame)), mode="constant")
+        elif len(audio_frame) > self.window_size:
+            chunk = audio_frame[: self.window_size]
         else:
-            audio_input = audio_frame
+            chunk = audio_frame
 
-        # Input shape: (1, N) float32
-        tensor_in = np.expand_dims(audio_input.astype(np.float32), axis=0)
+        # Shape: (1, 512)
+        x = np.expand_dims(chunk.astype(np.float32), axis=0)
+
+        # Prepend context: (1, 64) + (1, 512) -> (1, 576)
+        x_with_context = np.concatenate([self._context, x], axis=1)
+
         sr_tensor = np.array(self.sample_rate, dtype=np.int64)
 
         ort_inputs = {
-            "input": tensor_in,
+            "input": x_with_context,
             "state": self._state,
             "sr": sr_tensor,
         }
 
         out, self._state = self._session.run(None, ort_inputs)
         speech_prob = float(out[0][0])
+
+        # Update context to the last context_size samples of x_with_context
+        self._context = x_with_context[:, -self.context_size :]
+
         return speech_prob, self._state
 
 
 class SpeechSegmenter:
     """
-    Consumes continuous 30ms frames, evaluates speech presence, and yields complete
+    Consumes continuous audio frames, evaluates speech presence, and yields complete
     speech segments when speaker pauses or maximum window length is reached.
     """
 
@@ -121,8 +134,8 @@ class SpeechSegmenter:
         vad: VoiceActivityDetectorPort,
         sample_rate: int = 16000,
         trailing_silence_ms: float = 250.0,
-        min_speech_duration_ms: float = 400.0,
-        max_speech_duration_ms: float = 3000.0,
+        min_speech_duration_ms: float = 300.0,
+        max_speech_duration_ms: float = 4000.0,
     ):
         self.vad = vad
         self.sample_rate = sample_rate
@@ -134,7 +147,7 @@ class SpeechSegmenter:
         self._current_silence_ms = 0.0
         self._is_speaking = False
 
-    def process_frame(self, frame: np.ndarray, frame_duration_ms: float = 30.0) -> Optional[np.ndarray]:
+    def process_frame(self, frame: np.ndarray, frame_duration_ms: float = 32.0) -> Optional[np.ndarray]:
         """
         Processes a single audio frame.
         Returns a complete 1D numpy audio array when speech segment completes, else None.
@@ -148,7 +161,6 @@ class SpeechSegmenter:
 
             total_speech_ms = len(self._active_speech_frames) * frame_duration_ms
             if total_speech_ms >= self.max_speech_duration_ms:
-                # Force chunk cut at maximum duration
                 chunk = np.concatenate(self._active_speech_frames)
                 self._active_speech_frames.clear()
                 self._is_speaking = False
@@ -167,7 +179,7 @@ class SpeechSegmenter:
                         self._current_silence_ms = 0.0
                         return chunk
                     else:
-                        # Too short (e.g. mic click or cough), discard
+                        # Too short (e.g. minor click), discard
                         self._active_speech_frames.clear()
                         self._is_speaking = False
                         self._current_silence_ms = 0.0
