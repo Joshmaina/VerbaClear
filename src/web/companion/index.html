@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>VerbaClear Attendee Companion</title>
+  <style>
+    /* Reset & Base Variables */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg-dark: #070b14;
+      --bg-surface: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-border: rgba(56, 189, 248, 0.16);
+      --bg-pill: rgba(56, 189, 248, 0.12);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #0284c7;
+      --accent-gold: #f59e0b;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 80px;
+    }
+
+    /* Container */
+    .app-container {
+      width: 100%;
+      max-width: 640px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Sticky Header */
+    header.sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(7, 11, 20, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--bg-card-border);
+      padding: 14px 18px 10px;
+    }
+
+    .header-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-logo svg {
+      width: 18px;
+      height: 18px;
+      fill: #ffffff;
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Connection & Stats Badges */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--accent-red);
+      transition: background-color 0.3s;
+    }
+
+    .status-dot.connected {
+      background-color: var(--accent-green);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+
+    .btn-export-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .btn-export-trigger:active {
+      transform: scale(0.96);
+    }
+
+    /* Search & Segmented Filter */
+    .controls-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      fill: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 34px 0 34px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .tabs-group {
+      display: flex;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .tab-badge {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tab-btn.active .tab-badge {
+      background: rgba(56, 189, 248, 0.25);
+      color: #ffffff;
+    }
+
+    /* Feed Container */
+    #feed-list {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Vocabulary Card */
+    .vocab-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: cardSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    @keyframes cardSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1.0);
+      }
+    }
+
+    .vocab-card.bookmarked-card {
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.12);
+    }
+
+    /* Card Top Bar */
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .word-header-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .word-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .word-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .pos-pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .domain-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-secondary);
+    }
+
+    .phonetic-label {
+      font-size: 14px;
+      color: #94a3b8;
+      font-style: italic;
+      font-family: Georgia, serif;
+    }
+
+    /* Bookmark Button */
+    .btn-bookmark {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .btn-bookmark svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+      transition: fill 0.2s, transform 0.2s;
+    }
+
+    .btn-bookmark.bookmarked {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-bookmark.bookmarked svg {
+      fill: var(--accent-gold);
+      transform: scale(1.15);
+    }
+
+    /* Synonyms Pill List */
+    .synonyms-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .synonym-tag {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: var(--bg-pill);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+
+    .synonym-tag.sec {
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+    }
+
+    /* Definition Box */
+    .definition-box {
+      font-size: 15px;
+      line-height: 1.5;
+      color: #e2e8f0;
+      background: rgba(0, 0, 0, 0.22);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    /* Context Sentence Quote */
+    .context-box {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      font-style: italic;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+    }
+
+    .context-prefix {
+      font-style: normal;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Card Footer */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Empty States */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      gap: 12px;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      fill: var(--text-muted);
+      opacity: 0.4;
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .empty-text {
+      font-size: 14px;
+      max-width: 320px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    /* Export Modal Backdrop & Dialog */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    @media (min-width: 640px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 20px;
+      }
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 500px;
+      background: #0f172a;
+      border: 1px solid var(--bg-card-border);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: sheetUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @media (min-width: 640px) {
+      .modal-sheet {
+        border-radius: 20px;
+      }
+    }
+
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .export-option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .export-radio-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .export-radio-box input[type="radio"] {
+      accent-color: var(--accent-cyan);
+    }
+
+    .export-buttons-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-action-download {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .btn-action-download:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary-anki {
+      background: linear-gradient(135deg, #0284c7, #0284c7);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-secondary-tsv {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-secondary-csv {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Sticky Navigation & Search Header -->
+    <header class="sticky-header">
+      <div class="header-top-row">
+        <div class="brand-group">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-6h2v6zm0-8h-2V7h2v1z"/>
+            </svg>
+          </div>
+          <div class="brand-title-wrap">
+            <span class="brand-name">VerbaClear</span>
+            <span class="brand-subtitle">Attendee Companion</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="status-pill">
+            <div id="status-dot" class="status-dot"></div>
+            <span id="status-text">Live</span>
+          </div>
+
+          <button id="btn-open-export" class="btn-export-trigger">
+            <svg style="width:13px; height:13px; fill:currentColor;" viewBox="0 0 24 24">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input type="text" id="search-box" class="search-input" placeholder="Search spoken vocabulary, synonyms..." autocomplete="off">
+          <button id="search-clear-btn" class="search-clear">&times;</button>
+        </div>
+
+        <div class="tabs-group">
+          <button id="tab-all" class="tab-btn active">
+            All Words
+            <span id="badge-all-count" class="tab-badge">0</span>
+          </button>
+          <button id="tab-bookmarks" class="tab-btn">
+            ★ Bookmarked
+            <span id="badge-bookmark-count" class="tab-badge">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Vocabulary Feed -->
+    <main id="feed-list"></main>
+
+  </div>
+
+  <!-- Export Dialog Modal -->
+  <div id="export-modal" class="modal-backdrop">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title">Export Flashcards</h2>
+        <button id="btn-close-modal" class="btn-close-modal">&times;</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
+        Export vocabulary to spaced-repetition flashcards for continuous learning after this event.
+      </p>
+
+      <div class="export-option-group">
+        <label class="export-radio-box">
+          <input type="radio" name="export-scope" value="bookmarked" checked>
+          <span>Bookmarked items only (<strong id="modal-bookmarked-count">0</strong> words)</span>
+        </label>
+        <label class="export-radio-box">
+          <input type="radio" name="export-scope" value="all">
+          <span>All session items (<strong id="modal-all-count">0</strong> words)</span>
+        </label>
+      </div>
+
+      <div class="export-buttons-group">
+        <button id="btn-download-anki-apkg" class="btn-action-download btn-primary-anki">
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Download Anki Deck (.apkg)
+        </button>
+
+        <button id="btn-download-anki-tsv" class="btn-action-download btn-secondary-tsv">
+          Download Anki Text (.txt / TSV)
+        </button>
+
+        <button id="btn-download-csv" class="btn-action-download btn-secondary-csv">
+          Download Spreadsheet (.csv)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Feedback -->
+  <div id="toast">Bookmarked for Anki</div>
+
+  <script>
+    (function() {
+      // State Management
+      let cardsMap = new Map(); // cardId -> cardObject
+      let bookmarkedIds = new Set();
+      let currentTab = 'all'; // 'all' or 'bookmarks'
+      let searchQuery = '';
+
+      // DOM Elements
+      const feedList = document.getElementById('feed-list');
+      const searchBox = document.getElementById('search-box');
+      const searchClearBtn = document.getElementById('search-clear-btn');
+      const tabAll = document.getElementById('tab-all');
+      const tabBookmarks = document.getElementById('tab-bookmarks');
+      const badgeAllCount = document.getElementById('badge-all-count');
+      const badgeBookmarkCount = document.getElementById('badge-bookmark-count');
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+      const toast = document.getElementById('toast');
+
+      const exportModal = document.getElementById('export-modal');
+      const btnOpenExport = document.getElementById('btn-open-export');
+      const btnCloseModal = document.getElementById('btn-close-modal');
+      const modalBookmarkedCount = document.getElementById('modal-bookmarked-count');
+      const modalAllCount = document.getElementById('modal-all-count');
+      const btnDownloadAnkiApkg = document.getElementById('btn-download-anki-apkg');
+      const btnDownloadAnkiTsv = document.getElementById('btn-download-anki-tsv');
+      const btnDownloadCsv = document.getElementById('btn-download-csv');
+
+      // Toast Feedback
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      }
+
+      // IndexedDB Persistence Layer
+      const DB_NAME = 'VerbaClearCompanionDB';
+      const DB_VERSION = 1;
+      const STORE_NAME = 'cards';
+      let dbInstance = null;
+
+      function openDB() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              const store = db.createObjectStore(STORE_NAME, { keyPath: 'cardId' });
+              store.createIndex('timestamp', 'timestamp', { unique: false });
+            }
+          };
+          req.onsuccess = function(e) {
+            dbInstance = e.target.result;
+            resolve(dbInstance);
+          };
+          req.onerror = function(e) {
+            console.warn('[VerbaClear DB] IndexedDB unavailable:', e);
+            resolve(null);
+          };
+        });
+      }
+
+      async function saveCardToDB(card) {
+        if (!dbInstance) return;
+        try {
+          const tx = dbInstance.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).put(card);
+        } catch (e) {
+          console.warn('[VerbaClear DB] Error saving card:', e);
+        }
+      }
+
+      async function loadAllCardsFromDB() {
+        if (!dbInstance) return [];
+        return new Promise((resolve) => {
+          try {
+            const tx = dbInstance.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => resolve([]);
+          } catch (e) {
+            resolve([]);
+          }
+        });
+      }
+
+      // UI Rendering
+      function renderFeed() {
+        feedList.innerHTML = '';
+
+        const cardsArray = Array.from(cardsMap.values());
+        // Reverse chronological (newest first)
+        cardsArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        const filtered = cardsArray.filter(card => {
+          // Tab filter
+          if (currentTab === 'bookmarks' && !bookmarkedIds.has(card.cardId)) {
+            return false;
+          }
+          // Search filter
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const wordMatch = (card.word || '').toLowerCase().includes(q);
+            const defMatch = (card.definition || '').toLowerCase().includes(q);
+            const synMatch = (card.synonyms || []).some(s => s.toLowerCase().includes(q));
+            if (!wordMatch && !defMatch && !synMatch) return false;
+          }
+          return true;
+        });
+
+        // Update counts
+        badgeAllCount.textContent = cardsMap.size;
+        badgeBookmarkCount.textContent = bookmarkedIds.size;
+        modalAllCount.textContent = cardsMap.size;
+        modalBookmarkedCount.textContent = bookmarkedIds.size;
+
+        if (filtered.length === 0) {
+          renderEmptyState();
+          return;
+        }
+
+        filtered.forEach(card => {
+          const cardEl = createCardElement(card);
+          feedList.appendChild(cardEl);
+        });
+      }
+
+      function renderEmptyState() {
+        const isBookmarkTab = currentTab === 'bookmarks';
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-state';
+
+        if (searchQuery) {
+          emptyDiv.innerHTML = `
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <div class="empty-title">No matching vocabulary</div>
+            <div class="empty-text">No words matching "${searchQuery}" were found in this session.</div>
+          `;
+        } else if (isBookmarkTab) {
+          emptyDiv.innerHTML = `
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <div class="empty-title">No bookmarks saved yet</div>
+            <div class="empty-text">Tap the star icon on any vocabulary card to save it for spaced-repetition Anki export.</div>
+          `;
+        } else {
+          emptyDiv.innerHTML = `
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+            <div class="empty-title">Waiting for spoken vocabulary...</div>
+            <div class="empty-text">As the presenter speaks uncommon or technical terms, simplified definitions and synonyms will appear here in real-time.</div>
+          `;
+        }
+        feedList.appendChild(emptyDiv);
+      }
+
+      function createCardElement(card) {
+        const isBookmarked = bookmarkedIds.has(card.cardId);
+        const cardDiv = document.createElement('div');
+        cardDiv.className = `vocab-card ${isBookmarked ? 'bookmarked-card' : ''}`;
+        cardDiv.id = `card-${card.cardId}`;
+
+        // Top Row
+        const topRow = document.createElement('div');
+        topRow.className = 'card-top';
+
+        const headerGroup = document.createElement('div');
+        headerGroup.className = 'word-header-group';
+
+        const wordRow = document.createElement('div');
+        wordRow.className = 'word-row';
+
+        const title = document.createElement('span');
+        title.className = 'word-title';
+        title.textContent = card.word || 'Vocabulary';
+        wordRow.appendChild(title);
+
+        if (card.partOfSpeech) {
+          const pos = document.createElement('span');
+          pos.className = 'pos-pill';
+          pos.textContent = card.partOfSpeech;
+          wordRow.appendChild(pos);
+        }
+
+        if (card.domainBadge && card.domainBadge !== 'General') {
+          const domain = document.createElement('span');
+          domain.className = 'domain-pill';
+          domain.textContent = card.domainBadge;
+          wordRow.appendChild(domain);
+        }
+
+        headerGroup.appendChild(wordRow);
+
+        if (card.phoneticIpa) {
+          const phonetic = document.createElement('span');
+          phonetic.className = 'phonetic-label';
+          phonetic.textContent = card.phoneticIpa;
+          headerGroup.appendChild(phonetic);
+        }
+
+        topRow.appendChild(headerGroup);
+
+        // Bookmark Action
+        const btnBookmark = document.createElement('button');
+        btnBookmark.className = `btn-bookmark ${isBookmarked ? 'bookmarked' : ''}`;
+        btnBookmark.setAttribute('aria-label', 'Bookmark for Anki');
+        btnBookmark.innerHTML = `
+          <svg viewBox="0 0 24 24">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+          </svg>
+        `;
+
+        btnBookmark.onclick = () => {
+          toggleBookmark(card.cardId);
+        };
+
+        topRow.appendChild(btnBookmark);
+        cardDiv.appendChild(topRow);
+
+        // Synonyms
+        if (card.synonyms && card.synonyms.length > 0) {
+          const synonymsRow = document.createElement('div');
+          synonymsRow.className = 'synonyms-row';
+          card.synonyms.forEach((syn, index) => {
+            const tag = document.createElement('span');
+            tag.className = index === 0 ? 'synonym-tag' : 'synonym-tag sec';
+            tag.textContent = syn;
+            synonymsRow.appendChild(tag);
+          });
+          cardDiv.appendChild(synonymsRow);
+        }
+
+        // Definition
+        if (card.definition) {
+          const defBox = document.createElement('div');
+          defBox.className = 'definition-box';
+          defBox.textContent = card.definition;
+          cardDiv.appendChild(defBox);
+        }
+
+        // Context Sentence
+        if (card.contextSentence) {
+          const ctxBox = document.createElement('div');
+          ctxBox.className = 'context-box';
+          ctxBox.innerHTML = `
+            <span class="context-prefix">Heard in Context</span>
+            "${card.contextSentence}"
+          `;
+          cardDiv.appendChild(ctxBox);
+        }
+
+        // Footer
+        const footer = document.createElement('div');
+        footer.className = 'card-footer';
+        footer.innerHTML = `
+          <span>VerbaClear Live Feed</span>
+          <span>${card.spokenTimeFormatted || 'Just now'}</span>
+        `;
+        cardDiv.appendChild(footer);
+
+        return cardDiv;
+      }
+
+      function toggleBookmark(cardId) {
+        const card = cardsMap.get(cardId);
+        if (!card) return;
+
+        if (bookmarkedIds.has(cardId)) {
+          bookmarkedIds.delete(cardId);
+          card.isBookmarked = false;
+          showToast(`Removed "${card.word}" from bookmarks`);
+        } else {
+          bookmarkedIds.add(cardId);
+          card.isBookmarked = true;
+          showToast(`★ Bookmarked "${card.word}" for Anki`);
+        }
+
+        saveCardToDB(card);
+        renderFeed();
+      }
+
+      // Ingest Card (via WebSocket or Initial REST Session Load)
+      function ingestCard(rawCard) {
+        const cardId = rawCard.cardId || rawCard.card_id;
+        if (!cardId) return;
+
+        const existing = cardsMap.get(cardId);
+        const isBookmarked = existing ? existing.isBookmarked : (rawCard.isBookmarked || false);
+
+        const card = {
+          cardId: cardId,
+          word: rawCard.word,
+          partOfSpeech: rawCard.partOfSpeech || rawCard.part_of_speech || 'general',
+          phoneticIpa: rawCard.phoneticIpa || rawCard.phonetic_ipa || '',
+          synonyms: rawCard.synonyms || [],
+          definition: rawCard.definition || '',
+          contextSentence: rawCard.contextSentence || rawCard.context_sentence || '',
+          spokenTimeFormatted: rawCard.spokenTimeFormatted || rawCard.spoken_time_formatted || 'Just now',
+          domainBadge: rawCard.domainBadge || rawCard.domain_badge || 'General',
+          timestamp: rawCard.timestamp || Date.now(),
+          isBookmarked: isBookmarked,
+        };
+
+        if (isBookmarked) {
+          bookmarkedIds.add(cardId);
+        }
+
+        cardsMap.set(cardId, card);
+        saveCardToDB(card);
+        renderFeed();
+      }
+
+      // Initial Fetch from Server Session
+      async function fetchSessionHistory() {
+        try {
+          const resp = await fetch('/api/session/cards');
+          if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data)) {
+              data.forEach(c => ingestCard(c));
+            }
+          }
+        } catch (e) {
+          console.warn('[VerbaClear] Session history fetch failed, relying on local IndexedDB:', e);
+        }
+      }
+
+      // WebSocket Connection
+      let socket = null;
+      let reconnectAttempts = 0;
+
+      function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host || 'localhost:8000';
+        const wsUrl = `${protocol}//${host}/ws/audience`;
+
+        statusText.textContent = 'Connecting';
+        statusDot.className = 'status-dot';
+
+        try {
+          socket = new WebSocket(wsUrl);
+
+          socket.onopen = function() {
+            reconnectAttempts = 0;
+            statusDot.className = 'status-dot connected';
+            statusText.textContent = 'Live';
+            console.log('[VerbaClear Companion] Connected to:', wsUrl);
+          };
+
+          socket.onmessage = function(event) {
+            try {
+              const payload = JSON.parse(event.data);
+              if (payload.topic === 'AUDIENCE_VOCABULARY_CARD' && payload.data) {
+                ingestCard(payload.data);
+                showToast(`New term: ${payload.data.word}`);
+              }
+            } catch (err) {
+              console.error('[VerbaClear Companion] Error parsing payload:', err);
+            }
+          };
+
+          socket.onclose = function() {
+            statusDot.className = 'status-dot';
+            statusText.textContent = 'Reconnecting';
+            scheduleReconnect();
+          };
+
+          socket.onerror = function() {
+            socket.close();
+          };
+        } catch (e) {
+          scheduleReconnect();
+        }
+      }
+
+      function scheduleReconnect() {
+        reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), 10000);
+        setTimeout(connectWebSocket, delay);
+      }
+
+      // Export Helpers
+      function getSelectedExportCards() {
+        const scope = document.querySelector('input[name="export-scope"]:checked')?.value || 'bookmarked';
+        const allCards = Array.from(cardsMap.values());
+        if (scope === 'bookmarked') {
+          return allCards.filter(c => bookmarkedIds.has(c.cardId));
+        }
+        return allCards;
+      }
+
+      async function downloadAnkiApkg() {
+        const cardsToExport = getSelectedExportCards();
+        if (cardsToExport.length === 0) {
+          showToast('No vocabulary cards selected to export.');
+          return;
+        }
+
+        try {
+          showToast('Generating Anki .apkg...');
+          const resp = await fetch('/api/export/anki', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cards: cardsToExport }),
+          });
+
+          if (!resp.ok) throw new Error('Failed to generate APKG');
+
+          const blob = await resp.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `verbaclear_deck.apkg`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          showToast('✓ Anki deck (.apkg) downloaded!');
+          exportModal.classList.remove('open');
+        } catch (e) {
+          showToast('Server export failed. Generating client-side TSV...');
+          downloadAnkiTsvClientSide();
+        }
+      }
+
+      function downloadAnkiTsvClientSide() {
+        const cardsToExport = getSelectedExportCards();
+        if (cardsToExport.length === 0) {
+          showToast('No vocabulary cards selected to export.');
+          return;
+        }
+
+        const lines = [
+          '#separator:Tab',
+          '#html:true',
+          '#deck:VerbaClear Event Vocabulary',
+          '#tags column:4'
+        ];
+
+        cardsToExport.forEach(c => {
+          const front = `<b>${c.word}</b> <small style="color:#64748b;">[${c.partOfSpeech}] ${c.phoneticIpa}</small>`;
+          let back = `<b>Definition:</b> ${c.definition}`;
+          if (c.synonyms && c.synonyms.length) {
+            back += `<br><b>Synonyms:</b> ${c.synonyms.join(', ')}`;
+          }
+          if (c.contextSentence) {
+            back += `<br><i>Context: "${c.contextSentence}"</i>`;
+          }
+          lines.push(`${front}\t${back}\t${c.phoneticIpa}\tVerbaClear`);
+        });
+
+        const text = lines.join('\n');
+        const blob = new Blob([text], { type: 'text/tab-separated-values;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `verbaclear_anki_cards.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast('✓ Anki TSV file downloaded!');
+        exportModal.classList.remove('open');
+      }
+
+      function downloadCsvClientSide() {
+        const cardsToExport = getSelectedExportCards();
+        if (cardsToExport.length === 0) {
+          showToast('No vocabulary cards selected to export.');
+          return;
+        }
+
+        const rows = [
+          ['Word', 'Part of Speech', 'Phonetic IPA', 'Definition', 'Synonyms', 'Context Sentence', 'Timestamp']
+        ];
+
+        cardsToExport.forEach(c => {
+          rows.push([
+            c.word,
+            c.partOfSpeech,
+            c.phoneticIpa,
+            c.definition,
+            (c.synonyms || []).join('; '),
+            c.contextSentence,
+            c.spokenTimeFormatted
+          ]);
+        });
+
+        const csvContent = rows.map(r => r.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `verbaclear_vocabulary.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast('✓ CSV file downloaded!');
+        exportModal.classList.remove('open');
+      }
+
+      // Event Listeners
+      searchBox.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        searchClearBtn.style.display = searchQuery ? 'block' : 'none';
+        renderFeed();
+      });
+
+      searchClearBtn.addEventListener('click', () => {
+        searchBox.value = '';
+        searchQuery = '';
+        searchClearBtn.style.display = 'none';
+        renderFeed();
+      });
+
+      tabAll.addEventListener('click', () => {
+        currentTab = 'all';
+        tabAll.classList.add('active');
+        tabBookmarks.classList.remove('active');
+        renderFeed();
+      });
+
+      tabBookmarks.addEventListener('click', () => {
+        currentTab = 'bookmarks';
+        tabBookmarks.classList.add('active');
+        tabAll.classList.remove('active');
+        renderFeed();
+      });
+
+      btnOpenExport.addEventListener('click', () => {
+        modalAllCount.textContent = cardsMap.size;
+        modalBookmarkedCount.textContent = bookmarkedIds.size;
+        exportModal.classList.add('open');
+      });
+
+      btnCloseModal.addEventListener('click', () => {
+        exportModal.classList.remove('open');
+      });
+
+      exportModal.addEventListener('click', (e) => {
+        if (e.target === exportModal) {
+          exportModal.classList.remove('open');
+        }
+      });
+
+      btnDownloadAnkiApkg.addEventListener('click', downloadAnkiApkg);
+      btnDownloadAnkiTsv.addEventListener('click', downloadAnkiTsvClientSide);
+      btnDownloadCsv.addEventListener('click', downloadCsvClientSide);
+
+      // App Initialization
+      async function init() {
+        await openDB();
+        const cached = await loadAllCardsFromDB();
+        cached.forEach(c => {
+          cardsMap.set(c.cardId, c);
+          if (c.isBookmarked) bookmarkedIds.add(c.cardId);
+        });
+        renderFeed();
+
+        await fetchSessionHistory();
+        connectWebSocket();
+      }
+
+      init();
+
+      // Diagnostic helper for testing
+      window.verbaClearAddCard = function(c) {
+        ingestCard(c);
+      };
+      window.verbaClearCardsMap = cardsMap;
+    })();
+  </script>
+</body>
+</html>

@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from src.api.routers.export import router as export_router
 from src.api.routers.session import router as session_router
 from src.api.ws.hub import WebSocketHub
 from src.application.orchestrator import VerbaClearOrchestrator
@@ -65,6 +66,7 @@ app.add_middleware(
 )
 
 app.include_router(session_router)
+app.include_router(export_router)
 
 
 @app.get("/stage")
@@ -73,6 +75,14 @@ async def get_stage_display():
     if not STAGE_HTML.exists():
         raise HTTPException(status_code=404, detail="Stage display template not found")
     return FileResponse(STAGE_HTML, media_type="text/html")
+
+
+@app.get("/companion")
+async def get_companion_portal():
+    """Serves the attendee mobile companion portal for smartphones & tablets."""
+    if not COMPANION_HTML.exists():
+        raise HTTPException(status_code=404, detail="Companion template not found")
+    return FileResponse(COMPANION_HTML, media_type="text/html")
 
 
 @app.get("/api/health")

@@ -48,6 +48,10 @@ class VerbaClearOrchestrator:
         self._async_loop: Optional[asyncio.AbstractEventLoop] = None
         self._is_active = False
 
+        # Session vocabulary history for mobile attendee onboarding and export
+        self._session_history = []
+        self._history_lock = threading.Lock()
+
         # Audio pipeline with callback
         self.audio_pipeline = audio_pipeline or AudioASRPipeline(
             on_segment_callback=self._handle_transcribed_segment,
@@ -137,12 +141,29 @@ class VerbaClearOrchestrator:
                 logger.warning("No active asyncio event loop attached to orchestrator.")
 
     async def _dispatch_cards(self, stage_card: StageOverlayCard, audience_card: AudienceCompanionCard) -> None:
-        """Dispatches cards to respective stage and audience queues."""
+        """Dispatches cards to respective stage and audience queues and records history."""
+        with self._history_lock:
+            self._session_history.append(audience_card)
+            if len(self._session_history) > 500:
+                self._session_history.pop(0)
+
         # Enqueue for staggered stage display
         await self.stage_queue.enqueue(stage_card)
 
         # Immediate broadcast to audience mobile devices
         await self.ws_hub.broadcast_audience(audience_card)
+
+    def add_card_to_history(self, card: AudienceCompanionCard) -> None:
+        """Directly inserts a card into session history (used in tests/simulations)."""
+        with self._history_lock:
+            self._session_history.append(card)
+            if len(self._session_history) > 500:
+                self._session_history.pop(0)
+
+    def get_session_cards(self) -> list:
+        """Returns all vocabulary cards emitted during the active session."""
+        with self._history_lock:
+            return list(self._session_history)
 
     def get_telemetry(self) -> dict:
         """Returns snapshot of real-time appliance performance metrics."""
@@ -153,6 +174,7 @@ class VerbaClearOrchestrator:
             "audioStreamActive": self.audio_pipeline.audio_source.is_active,
             "totalFramesProcessed": metrics.total_frames_processed,
             "totalSpeechChunks": metrics.total_speech_chunks_emitted,
+            "totalSessionWords": len(self._session_history),
             "lastInferenceLatencyMs": round(metrics.last_inference_latency_ms, 1),
             "avgInferenceLatencyMs": round(metrics.average_inference_latency_ms, 1),
             "connectedStageClients": self.ws_hub.stage_client_count,

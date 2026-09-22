@@ -88,3 +88,21 @@ async def get_companion_url(
         "port": port,
         "sessionId": session_id,
     }
+
+
+@router.get("/cards")
+async def get_session_cards():
+    """
+    Returns all vocabulary cards emitted during the active session.
+    Allows late-joining mobile companion attendees to populate their feed with past words.
+    """
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    cards = orchestrator.get_session_cards()
+    from src.infrastructure.export.anki_exporter import _sanitize_card
+    return [
+        _sanitize_card(c) for c in cards
+    ]
+
