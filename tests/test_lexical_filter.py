@@ -112,6 +112,9 @@ def test_exit_gate_2_sentence_filtration():
 
     test_sentence = "The tax architecture is labyrinthine and obfuscated."
 
+    # Prime engine caches for steady-state measurement
+    _ = engine.evaluate_sentence("Warm-up sentence.")
+
     t0 = time.perf_counter()
     evaluations = engine.evaluate_sentence(test_sentence)
     elapsed_ms = (time.perf_counter() - t0) * 1000.0

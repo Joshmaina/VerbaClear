@@ -61,7 +61,9 @@ class SpacyLemmatizer:
         logger.info("Loading spaCy model '%s'...", model_name)
         # Disable heavy parser components if not strictly required, keep tagger, lemmatizer, and ner
         self.nlp = spacy.load(model_name, disable=["parser"])
-        logger.info("spaCy model loaded successfully.")
+        # Warm up pipeline to eliminate first-sentence Cython cold-start latency
+        _ = self.nlp("VerbaClear warm-up sentence.")
+        logger.info("spaCy model loaded and warmed up successfully.")
 
     def analyze_text(self, text: str) -> List[CandidateToken]:
         """
