@@ -64,7 +64,7 @@ class VerbaClearOrchestrator:
             return
 
         self._is_active = True
-        self.stage_queue.start()
+        self.stage_queue.start(loop=self._async_loop)
         self.audio_pipeline.start()
         logger.info("VerbaClear Master Orchestrator started (Session ID: %s)", self.session_id)
 

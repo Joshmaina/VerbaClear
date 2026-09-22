@@ -32,13 +32,17 @@ class StageDisplayQueueManager:
         self._worker_task: Optional[asyncio.Task] = None
         self._is_running = False
 
-    def start(self) -> None:
+    def start(self, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Starts the queue consumer worker task."""
         if self._is_running:
             return
         self._is_running = True
-        self._worker_task = asyncio.create_task(self._process_queue(), name="StageQueueWorker")
-        logger.debug("StageDisplayQueueManager started.")
+        try:
+            active_loop = loop or asyncio.get_running_loop()
+            self._worker_task = active_loop.create_task(self._process_queue(), name="StageQueueWorker")
+            logger.debug("StageDisplayQueueManager started with active loop.")
+        except RuntimeError:
+            logger.debug("No running asyncio loop when starting StageDisplayQueueManager; worker task will lazy-start.")
 
     async def stop(self) -> None:
         """Stops the queue manager gracefully."""
@@ -57,6 +61,13 @@ class StageDisplayQueueManager:
         Enqueues a card for stage display.
         Returns True if enqueued, False if dropped due to queue congestion.
         """
+        # Ensure worker task is running if loop is active
+        if self._is_running and (self._worker_task is None or self._worker_task.done()):
+            try:
+                loop = asyncio.get_running_loop()
+                self._worker_task = loop.create_task(self._process_queue(), name="StageQueueWorker")
+            except RuntimeError:
+                pass
         try:
             self._queue.put_nowait(card)
             return True
