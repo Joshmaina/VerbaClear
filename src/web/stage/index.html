@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VerbaClear Stage Display Overlay</title>
+  <style>
+    /* Reset & Base Canvas */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: transparent !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Chroma Key Green option for legacy hardware video mixers (?theme=chroma) */
+    body.theme-chroma {
+      background-color: #00ff00 !important;
+    }
+
+    /* Safe-Area Presentation Container */
+    #stage-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: 4vw; /* Title safe-area margins */
+      pointer-events: none; /* Never capture mouse clicks away from presenter */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Positioning Anchors */
+    .pos-bottom-right {
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+
+    .pos-bottom-left {
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .pos-bottom-center {
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    /* Lower-Third Overlay Card */
+    .overlay-card {
+      position: relative;
+      min-width: 380px;
+      max-width: 600px;
+      background: rgba(10, 15, 29, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15);
+      border-radius: 16px;
+      padding: 20px 24px;
+      color: #ffffff;
+      opacity: 0;
+      transform: translateY(30px) scale(0.96);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity;
+      overflow: hidden;
+    }
+
+    .overlay-card.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1.0);
+    }
+
+    .overlay-card.exiting {
+      opacity: 0;
+      transform: translateY(15px) scale(0.98);
+      transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    }
+
+    /* Header Brand Pill */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .timer-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Content Body: Word -> Synonyms */
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .word-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .original-word {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #f8fafc;
+      line-height: 1.1;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .arrow-icon {
+      font-size: 20px;
+      color: #38bdf8;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .synonyms-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .synonym-pill {
+      display: inline-flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      padding: 4px 12px;
+      line-height: 1.2;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .synonym-pill.secondary {
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Linear Decay Progress Bar */
+    .progress-bar-track {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      transform-origin: left;
+      transform: scaleX(1);
+    }
+
+    .progress-bar-fill.decaying {
+      animation: decayAnimation linear forwards;
+    }
+
+    @keyframes decayAnimation {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    /* Connection Status Dot (top-right debug) */
+    #connection-indicator {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    #connection-indicator:hover {
+      opacity: 1;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ef4444; /* Default disconnected */
+      transition: background-color 0.3s;
+    }
+
+    .status-dot.connected {
+      background-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+  </style>
+</head>
+<body class="pos-bottom-right">
+
+  <!-- AV Connection Health Indicator -->
+  <div id="connection-indicator">
+    <div id="status-dot" class="status-dot"></div>
+    <span id="status-label">Stage WS</span>
+  </div>
+
+  <!-- Safe Container -->
+  <div id="stage-container" class="pos-bottom-right">
+    
+    <!-- Lower-Third Overlay Card -->
+    <div id="overlay-card" class="overlay-card">
+      <div class="card-header">
+        <span class="brand-tag">
+          <span class="pulse-dot"></span>
+          VerbaClear Ambient
+        </span>
+        <span id="timer-display" class="timer-text">7.0s</span>
+      </div>
+
+      <div class="card-body">
+        <div class="word-row">
+          <span id="original-word" class="original-word">Labyrinthine</span>
+          <span class="arrow-icon">→</span>
+          <div id="synonyms-container" class="synonyms-container">
+            <span class="synonym-pill">Highly Complex</span>
+            <span class="synonym-pill secondary">Maze-like</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linear Countdown Track -->
+      <div class="progress-bar-track">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      // Parse Query Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const position = urlParams.get('position') || 'bottom-right';
+      const theme = urlParams.get('theme') || 'default';
+      const scale = parseFloat(urlParams.get('scale') || '1.0');
+
+      // Apply Layout Positioning
+      const container = document.getElementById('stage-container');
+      const body = document.body;
+      const card = document.getElementById('overlay-card');
+
+      if (position === 'bottom-left') {
+        container.className = 'pos-bottom-left';
+      } else if (position === 'bottom-center') {
+        container.className = 'pos-bottom-center';
+      } else {
+        container.className = 'pos-bottom-right';
+      }
+
+      if (theme === 'chroma') {
+        body.classList.add('theme-chroma');
+      }
+
+      if (scale !== 1.0) {
+        card.style.transformOrigin = (position === 'bottom-left') ? 'bottom left' : 'bottom right';
+        card.style.zoom = scale;
+      }
+
+      // UI Elements
+      const wordEl = document.getElementById('original-word');
+      const synonymsContainer = document.getElementById('synonyms-container');
+      const timerDisplay = document.getElementById('timer-display');
+      const progressFill = document.getElementById('progress-fill');
+      const statusDot = document.getElementById('status-dot');
+      const statusLabel = document.getElementById('status-label');
+
+      let currentTimer = null;
+      let countdownInterval = null;
+
+      // Card Display Lifecycle Function
+      function displayCard(data) {
+        const word = data.word || "Vocabulary";
+        const synonyms = data.synonyms || [];
+        const durationS = parseFloat(data.displayDurationSeconds || 7.0);
+
+        // Clear ongoing decay timers
+        if (currentTimer) clearTimeout(currentTimer);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        // Update DOM Content
+        wordEl.textContent = word;
+        synonymsContainer.innerHTML = '';
+
+        synonyms.forEach((syn, index) => {
+          const pill = document.createElement('span');
+          pill.className = index === 0 ? 'synonym-pill' : 'synonym-pill secondary';
+          pill.textContent = syn;
+          synonymsContainer.appendChild(pill);
+        });
+
+        // Reset progress bar animation
+        progressFill.classList.remove('decaying');
+        void progressFill.offsetWidth; // Force reflow
+        progressFill.style.animationDuration = `${durationS}s`;
+        progressFill.classList.add('decaying');
+
+        // Reveal card with spring transition
+        card.classList.remove('exiting');
+        card.classList.add('visible');
+
+        // Countdown timer label
+        let remainingMs = durationS * 1000;
+        timerDisplay.textContent = `${durationS.toFixed(1)}s`;
+
+        countdownInterval = setInterval(() => {
+          remainingMs -= 100;
+          if (remainingMs <= 0) {
+            timerDisplay.textContent = '0.0s';
+            clearInterval(countdownInterval);
+          } else {
+            timerDisplay.textContent = `${(remainingMs / 1000).toFixed(1)}s`;
+          }
+        }, 100);
+
+        // Schedule exit transition
+        currentTimer = setTimeout(() => {
+          card.classList.remove('visible');
+          card.classList.add('exiting');
+          clearInterval(countdownInterval);
+        }, durationS * 1000);
+      }
+
+      // WebSocket Connection with Exponential Backoff
+      let socket = null;
+      let reconnectAttempts = 0;
+
+      function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host || 'localhost:8000';
+        const wsUrl = `${protocol}//${host}/ws/stage`;
+
+        statusLabel.textContent = 'Connecting...';
+        statusDot.className = 'status-dot';
+
+        try {
+          socket = new WebSocket(wsUrl);
+
+          socket.onopen = function() {
+            reconnectAttempts = 0;
+            statusDot.className = 'status-dot connected';
+            statusLabel.textContent = 'Stage Live';
+            console.log('[VerbaClear Stage] Connected to:', wsUrl);
+          };
+
+          socket.onmessage = function(event) {
+            try {
+              const payload = JSON.parse(event.data);
+              console.log('[VerbaClear Stage] Message received:', payload);
+              if (payload.topic === 'STAGE_DISPLAY_POP' && payload.data) {
+                displayCard(payload.data);
+              }
+            } catch (err) {
+              console.error('[VerbaClear Stage] Error parsing payload:', err);
+            }
+          };
+
+          socket.onclose = function() {
+            statusDot.className = 'status-dot';
+            statusLabel.textContent = 'Reconnecting...';
+            scheduleReconnect();
+          };
+
+          socket.onerror = function(err) {
+            console.warn('[VerbaClear Stage] WebSocket error:', err);
+            socket.close();
+          };
+        } catch (e) {
+          scheduleReconnect();
+        }
+      }
+
+      function scheduleReconnect() {
+        reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), 10000);
+        console.log(`[VerbaClear Stage] Reconnecting in ${(delay/1000).toFixed(1)}s...`);
+        setTimeout(connectWebSocket, delay);
+      }
+
+      // Initialize
+      connectWebSocket();
+
+      // Expose diagnostic trigger for testing in console
+      window.verbaClearTest = function(word, synonyms, duration) {
+        displayCard({
+          word: word || "Labyrinthine",
+          synonyms: synonyms || ["Highly Complex", "Maze-like"],
+          displayDurationSeconds: duration || 7.0
+        });
+      };
+    })();
+  </script>
+</body>
+</html>

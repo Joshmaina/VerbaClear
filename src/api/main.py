@@ -7,8 +7,10 @@ from contextlib import asynccontextmanager
 import logging
 import sys
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from src.api.routers.session import router as session_router
 from src.api.ws.hub import WebSocketHub
@@ -20,6 +22,11 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger("verbaclear")
+
+# Paths to self-contained web interfaces
+WEB_DIR = Path(__file__).parent.parent / "web"
+STAGE_HTML = WEB_DIR / "stage" / "index.html"
+COMPANION_HTML = WEB_DIR / "companion" / "index.html"
 
 # Global instances
 ws_hub = WebSocketHub()
@@ -58,6 +65,14 @@ app.add_middleware(
 )
 
 app.include_router(session_router)
+
+
+@app.get("/stage")
+async def get_stage_display():
+    """Serves the standalone lower-third stage overlay for OBS / video switchers."""
+    if not STAGE_HTML.exists():
+        raise HTTPException(status_code=404, detail="Stage display template not found")
+    return FileResponse(STAGE_HTML, media_type="text/html")
 
 
 @app.get("/api/health")
