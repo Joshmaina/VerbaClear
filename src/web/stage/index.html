@@ -413,6 +413,13 @@
               console.log('[VerbaClear Stage] Message received:', payload);
               if (payload.topic === 'STAGE_DISPLAY_POP' && payload.data) {
                 displayCard(payload.data);
+              } else if (payload.topic === 'STAGE_BLACKOUT' || payload.topic === 'STAGE_DISMISS') {
+                if (currentTimer) clearTimeout(currentTimer);
+                if (countdownInterval) clearInterval(countdownInterval);
+                card.classList.remove('visible');
+                card.classList.add('exiting');
+                timerDisplay.textContent = '0.0s';
+                progressFill.classList.remove('decaying');
               }
             } catch (err) {
               console.error('[VerbaClear Stage] Error parsing payload:', err);

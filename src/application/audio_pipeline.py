@@ -25,6 +25,9 @@ class AudioPipelineMetrics:
     total_speech_chunks_emitted: int = 0
     last_inference_latency_ms: float = 0.0
     average_inference_latency_ms: float = 0.0
+    current_vu_rms: float = 0.0
+    current_dbfs: float = -60.0
+    current_vad_prob: float = 0.0
 
 
 class AudioASRPipeline:
@@ -52,7 +55,24 @@ class AudioASRPipeline:
 
         self.metrics = AudioPipelineMetrics()
         self._is_running = False
+        self.is_muted = False
         self._thread: Optional[threading.Thread] = None
+
+    def mute(self) -> None:
+        """Mutes audio processing; VU meters continue to read but ASR is bypassed."""
+        self.is_muted = True
+        logger.info("Audio pipeline MUTED by operator.")
+
+    def unmute(self) -> None:
+        """Resumes active ASR transcription from live microphone."""
+        self.is_muted = False
+        logger.info("Audio pipeline UNMUTED by operator.")
+
+    def toggle_mute(self) -> bool:
+        """Toggles audio mute state. Returns new muted boolean state."""
+        self.is_muted = not self.is_muted
+        logger.info("Audio pipeline mute toggled to: %s", self.is_muted)
+        return self.is_muted
 
     def start(self) -> None:
         """Starts audio capture and processing worker thread."""
@@ -92,6 +112,17 @@ class AudioASRPipeline:
                 continue
 
             self.metrics.total_frames_processed += 1
+
+            # Compute real-time VU audio levels
+            rms = float(np.sqrt(np.mean(chunk**2))) if len(chunk) > 0 else 0.0
+            dbfs = 20.0 * np.log10(rms + 1e-9)
+            self.metrics.current_vu_rms = round(rms, 4)
+            self.metrics.current_dbfs = round(max(-60.0, min(0.0, dbfs)), 1)
+            self.metrics.current_vad_prob = round(float(getattr(self.vad, "last_probability", 0.0)), 3)
+
+            # If muted by AV operator, bypass VAD and ASR
+            if self.is_muted:
+                continue
 
             # Pass frame to VAD segmenter
             speech_chunk = self.segmenter.process_frame(chunk)

@@ -91,6 +91,19 @@ class StageDisplayQueueManager:
                 logger.error("Error in StageDisplayQueueManager loop: %s", str(e), exc_info=True)
                 await asyncio.sleep(0.5)
 
+    def clear_queue(self) -> int:
+        """Drains all queued cards immediately. Returns count of dropped cards."""
+        dropped = 0
+        while not self._queue.empty():
+            try:
+                self._queue.get_nowait()
+                self._queue.task_done()
+                dropped += 1
+            except (asyncio.QueueEmpty, ValueError):
+                break
+        logger.info("Stage queue cleared by operator (dropped %d cards).", dropped)
+        return dropped
+
     @property
     def queue_size(self) -> int:
         return self._queue.qsize()

@@ -97,6 +97,26 @@ class WebSocketHub(BroadcasterPort):
         }
         await self._broadcast_to_set(self._stage_sockets, payload)
 
+    async def broadcast_stage_blackout(self) -> None:
+        """Forces immediate blanking and clearance of the stage lower-third overlay."""
+        payload = {
+            "topic": "STAGE_BLACKOUT",
+            "timestamp": int(time.time() * 1000),
+        }
+        await self._broadcast_to_set(self._stage_sockets, payload)
+
+    async def broadcast_stage_dismiss(self) -> None:
+        """Forces dismissal of the currently active stage card."""
+        payload = {
+            "topic": "STAGE_DISMISS",
+            "timestamp": int(time.time() * 1000),
+        }
+        await self._broadcast_to_set(self._stage_sockets, payload)
+
+    @property
+    def telemetry_client_count(self) -> int:
+        return len(self._telemetry_sockets)
+
     async def broadcast_audience(self, card: AudienceCompanionCard) -> None:
         """
         Dispatches comprehensive educational payload to all connected mobile companions.

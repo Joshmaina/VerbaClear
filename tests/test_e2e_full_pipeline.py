@@ -114,6 +114,7 @@ def test_full_pipeline_e2e_smoke():
             assert ws_hub.audience_client_count >= 1
 
             # 5. Connect Audio Feeder & tiny.en ASR for CPU to Orchestrator Pipeline
+            orchestrator.stage_queue.clear_queue()
             feeder = StreamingAudioFeeder(speech_pcm[: 16000 * 5])  # First 5 seconds
             orchestrator.audio_pipeline.audio_source = feeder
             orchestrator.audio_pipeline.asr = FasterWhisperASR(model_size_or_path="tiny.en", compute_type="int8")

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VerbaClear AV Operator Console</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg-dark: #070b14;
+      --bg-surface: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-border: rgba(56, 189, 248, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #0284c7;
+      --accent-green: #22c55e;
+      --accent-yellow: #eab308;
+      --accent-red: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px;
+    }
+
+    /* Top Appliance Navigation */
+    header.console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #ffffff;
+    }
+
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .header-status-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      transition: background 0.3s;
+    }
+
+    .status-dot.connected {
+      background: var(--accent-green);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    .header-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-nav-link:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      flex: 1;
+    }
+
+    .col-span-4 { grid-column: span 4; }
+    .col-span-8 { grid-column: span 8; }
+    .col-span-6 { grid-column: span 6; }
+    .col-span-12 { grid-column: span 12; }
+
+    @media (max-width: 1024px) {
+      .col-span-4, .col-span-8, .col-span-6 {
+        grid-column: span 12;
+      }
+    }
+
+    /* Cards */
+    .console-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Metric Chips Bar */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-chip {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-chip-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-chip-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Hardware VU Meter & Audio Gating */
+    .meter-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .vu-meter-track {
+      width: 100%;
+      height: 24px;
+      background: #0b1120;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 2px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .vu-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e 0%, #22c55e 65%, #eab308 85%, #ef4444 100%);
+      border-radius: 4px;
+      transition: width 0.08s ease-out;
+    }
+
+    .vu-meter-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0 2px;
+    }
+
+    /* VAD Indicator */
+    .vad-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+    }
+
+    .vad-pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .vad-pill.active {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--accent-green);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    /* Operator Control Buttons */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .btn-console {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s, filter 0.15s;
+    }
+
+    .btn-console:active {
+      transform: scale(0.97);
+    }
+
+    .btn-blackout {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-dismiss {
+      background: linear-gradient(135deg, #a16207, #ca8a04);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(202, 138, 4, 0.3);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .btn-mute {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-mute.muted-state {
+      background: linear-gradient(135deg, #c2410c, #ea580c);
+      color: #ffffff;
+      border-color: rgba(234, 88, 12, 0.5);
+    }
+
+    /* Live Stage Mini-Preview */
+    .stage-preview-box {
+      width: 100%;
+      height: 120px;
+      background: #030712;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-tag {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .preview-card-body {
+      background: rgba(10, 15, 29, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .preview-word {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .preview-synonyms {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    /* Manual Card Injection Form */
+    .injection-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-inject {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+
+    /* Audit Log Stream */
+    .audit-log-list {
+      max-height: 240px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-right: 4px;
+    }
+
+    .audit-log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .audit-time {
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .audit-word {
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .audit-syn {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Console Header -->
+  <header class="console-header">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-6h2v6zm0-8h-2V7h2v1z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>VerbaClear AV Control Room</h1>
+        <span>Live Production Appliance Console</span>
+      </div>
+    </div>
+
+    <div class="header-status-group">
+      <div class="status-badge">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="telemetry-label">Telemetry Offline</span>
+      </div>
+
+      <div class="status-badge">
+        <span>Uptime:</span>
+        <strong id="session-uptime" style="color:#ffffff;">00:00:00</strong>
+      </div>
+
+      <div class="header-links">
+        <a href="/stage" target="_blank" class="btn-nav-link">Stage Screen ↗</a>
+        <a href="/companion" target="_blank" class="btn-nav-link">Mobile Portal ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metrics Bar -->
+  <div class="metrics-bar" style="margin-bottom: 20px;">
+    <div class="metric-chip">
+      <span class="metric-chip-label">Stage Screens</span>
+      <span id="metric-stage-count" class="metric-chip-value">0</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip-label">Mobile Attendees</span>
+      <span id="metric-audience-count" class="metric-chip-value">0</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip-label">Queue Depth</span>
+      <span id="metric-queue-depth" class="metric-chip-value">0 / 10</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip-label">ASR Latency</span>
+      <span id="metric-latency" class="metric-chip-value">0.0 ms</span>
+    </div>
+    <div class="metric-chip">
+      <span class="metric-chip-label">Session Words</span>
+      <span id="metric-words-total" class="metric-chip-value">0</span>
+    </div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="dashboard-grid">
+
+    <!-- Audio Hardware & VAD Telemetry -->
+    <div class="console-card col-span-6">
+      <div class="card-title-row">
+        <span class="card-title">Hardware Audio & VAD Gating</span>
+        <span id="audio-mode-pill" style="font-size:11px; font-weight:700; color:var(--accent-green);">AUDIO LIVE</span>
+      </div>
+
+      <!-- Horizontal VU Meter -->
+      <div class="meter-container">
+        <div class="meter-label-row">
+          <span>Input Level (VU Meter)</span>
+          <span id="vu-dbfs-text">-60.0 dBFS</span>
+        </div>
+        <div class="vu-meter-track">
+          <div id="vu-meter-fill" class="vu-meter-fill"></div>
+        </div>
+        <div class="vu-meter-scale">
+          <span>-60 dB</span>
+          <span>-36 dB</span>
+          <span>-24 dB</span>
+          <span>-12 dB</span>
+          <span>-3 dB</span>
+          <span>0 dB</span>
+        </div>
+      </div>
+
+      <!-- VAD Probability Bar -->
+      <div class="meter-container">
+        <div class="meter-label-row">
+          <span>Silero VAD Speech Probability</span>
+          <span id="vad-prob-text">0.00</span>
+        </div>
+        <div class="vu-meter-track" style="height: 12px;">
+          <div id="vad-meter-fill" style="height:100%; width:0%; background:var(--accent-cyan); border-radius:3px; transition:width 0.1s ease-out;"></div>
+        </div>
+      </div>
+
+      <div class="vad-status-row">
+        <span>VAD Decision State:</span>
+        <span id="vad-status-pill" class="vad-pill">Silence / Noise Gate</span>
+      </div>
+
+      <button id="btn-toggle-mute" class="btn-console btn-mute" style="margin-top: 6px;">
+        🎙️ Mute Microphone
+      </button>
+    </div>
+
+    <!-- Stage Master Controls -->
+    <div class="console-card col-span-6">
+      <div class="card-title-row">
+        <span class="card-title">Stage Display Master Controls</span>
+        <span style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">OBS / NDI OVERLAY</span>
+      </div>
+
+      <!-- Live Stage Mini-Preview -->
+      <div class="stage-preview-box">
+        <span class="preview-tag">Stage Live Feed Preview</span>
+        <div id="preview-card" class="preview-card-body" style="opacity: 0.4;">
+          <span id="preview-word" class="preview-word">No Active Card</span>
+          <span id="preview-synonyms" class="preview-synonyms">—</span>
+        </div>
+      </div>
+
+      <!-- Emergency Buttons -->
+      <div class="actions-grid">
+        <button id="btn-stage-blackout" class="btn-console btn-blackout">
+          🚨 Stage Blackout
+        </button>
+        <button id="btn-stage-dismiss" class="btn-console btn-dismiss">
+          ⏭ Dismiss Current
+        </button>
+      </div>
+
+      <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+        <strong>Stage Blackout:</strong> Instantly clears the stage lower-third card and purges all queued vocabulary cards.<br>
+        <strong>Dismiss Current:</strong> Skips the active card immediately, popping the next item in the queue.
+      </p>
+    </div>
+
+    <!-- Manual Vocabulary Injection Form -->
+    <div class="console-card col-span-6">
+      <div class="card-title-row">
+        <span class="card-title">Manual Vocabulary Injection</span>
+        <span style="font-size: 11px; color: var(--text-muted);">Operator Override</span>
+      </div>
+
+      <form id="injection-form" class="injection-form">
+        <div class="form-row">
+          <input type="text" id="inject-word" class="input-field" placeholder="Word / Term (e.g. Labyrinthine)" required>
+          <input type="text" id="inject-synonyms" class="input-field" placeholder="Synonyms (e.g. Complex, Maze-like)" required>
+        </div>
+        <input type="text" id="inject-def" class="input-field" placeholder="Definition (e.g. Intricate or complicated in structure)" required>
+        <div class="form-row">
+          <input type="text" id="inject-phonetic" class="input-field" placeholder="Phonetic IPA (optional)">
+          <button type="submit" class="btn-console btn-inject">
+            ⚡ Inject to Stage & Mobile
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Live Vocabulary Audit Stream -->
+    <div class="console-card col-span-6">
+      <div class="card-title-row">
+        <span class="card-title">Live Spoken Vocabulary Stream</span>
+        <span id="audit-count" style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">0 Words</span>
+      </div>
+
+      <div id="audit-list" class="audit-log-list">
+        <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px;">
+          Listening for spoken vocabulary from presenter...
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification Feedback -->
+  <div id="toast">Action Executed</div>
+
+  <script>
+    (function() {
+      // DOM Elements
+      const statusDot = document.getElementById('status-dot');
+      const telemetryLabel = document.getElementById('telemetry-label');
+      const sessionUptime = document.getElementById('session-uptime');
+
+      const metricStageCount = document.getElementById('metric-stage-count');
+      const metricAudienceCount = document.getElementById('metric-audience-count');
+      const metricQueueDepth = document.getElementById('metric-queue-depth');
+      const metricLatency = document.getElementById('metric-latency');
+      const metricWordsTotal = document.getElementById('metric-words-total');
+
+      const vuMeterFill = document.getElementById('vu-meter-fill');
+      const vuDbfsText = document.getElementById('vu-dbfs-text');
+      const vadMeterFill = document.getElementById('vad-meter-fill');
+      const vadProbText = document.getElementById('vad-prob-text');
+      const vadStatusPill = document.getElementById('vad-status-pill');
+      const audioModePill = document.getElementById('audio-mode-pill');
+      const btnToggleMute = document.getElementById('btn-toggle-mute');
+
+      const previewCard = document.getElementById('preview-card');
+      const previewWord = document.getElementById('preview-word');
+      const previewSynonyms = document.getElementById('preview-synonyms');
+
+      const btnStageBlackout = document.getElementById('btn-stage-blackout');
+      const btnStageDismiss = document.getElementById('btn-stage-dismiss');
+
+      const injectionForm = document.getElementById('injection-form');
+      const injectWord = document.getElementById('inject-word');
+      const injectSynonyms = document.getElementById('inject-synonyms');
+      const injectDef = document.getElementById('inject-def');
+      const injectPhonetic = document.getElementById('inject-phonetic');
+
+      const auditList = document.getElementById('audit-list');
+      const auditCount = document.getElementById('audit-count');
+      const toast = document.getElementById('toast');
+
+      let startTime = Date.now();
+      let auditItems = [];
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      }
+
+      // Uptime Clock
+      setInterval(() => {
+        const sec = Math.floor((Date.now() - startTime) / 1000);
+        const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        sessionUptime.textContent = `${h}:${m}:${s}`;
+      }, 1000);
+
+      // Telemetry Update Consumer
+      function updateTelemetry(data) {
+        if (!data) return;
+
+        metricStageCount.textContent = data.connectedStageClients ?? 0;
+        metricAudienceCount.textContent = data.connectedAudienceClients ?? 0;
+        metricQueueDepth.textContent = `${data.stageQueueDepth ?? 0} / 10`;
+        metricLatency.textContent = `${(data.avgInferenceLatencyMs ?? 0).toFixed(1)} ms`;
+        metricWordsTotal.textContent = data.totalSessionWords ?? 0;
+
+        // VU meter conversion (-60 dBFS to 0 dBFS -> 0% to 100%)
+        const dbfs = data.vuDbfs ?? -60;
+        vuDbfsText.textContent = `${dbfs.toFixed(1)} dBFS`;
+        const percentage = Math.max(0, Math.min(100, ((dbfs + 60) / 60) * 100));
+        vuMeterFill.style.width = `${percentage}%`;
+
+        // VAD
+        const vad = data.vadProb ?? 0;
+        vadProbText.textContent = vad.toFixed(2);
+        vadMeterFill.style.width = `${Math.min(100, vad * 100)}%`;
+
+        if (data.isSpeaking) {
+          vadStatusPill.className = 'vad-pill active';
+          vadStatusPill.textContent = 'Speaking Detected';
+        } else {
+          vadStatusPill.className = 'vad-pill';
+          vadStatusPill.textContent = 'Silence / Noise Gate';
+        }
+
+        // Mute state
+        if (data.isMuted) {
+          audioModePill.textContent = 'AUDIO MUTED';
+          audioModePill.style.color = 'var(--accent-red)';
+          btnToggleMute.textContent = '🔇 Unmute Microphone';
+          btnToggleMute.className = 'btn-console btn-mute muted-state';
+        } else {
+          audioModePill.textContent = 'AUDIO LIVE';
+          audioModePill.style.color = 'var(--accent-green)';
+          btnToggleMute.textContent = '🎙️ Mute Microphone';
+          btnToggleMute.className = 'btn-console btn-mute';
+        }
+      }
+
+      // Add to Audit Log
+      function addAuditWord(word, synonyms, timeStr) {
+        if (auditItems.length === 0) {
+          auditList.innerHTML = '';
+        }
+        auditItems.unshift({ word, synonyms, timeStr });
+        auditCount.textContent = `${auditItems.length} Words`;
+
+        const row = document.createElement('div');
+        row.className = 'audit-log-item';
+        row.innerHTML = `
+          <span class="audit-word">${word}</span>
+          <span class="audit-syn">${Array.isArray(synonyms) ? synonyms.join(', ') : synonyms}</span>
+          <span class="audit-time">${timeStr || 'Just now'}</span>
+        `;
+        auditList.prepend(row);
+
+        // Update preview
+        previewCard.style.opacity = '1';
+        previewWord.textContent = word;
+        previewSynonyms.textContent = Array.isArray(synonyms) ? synonyms.join(' • ') : synonyms;
+      }
+
+      // WebSocket Connection for Telemetry (/ws/telemetry)
+      let ws = null;
+      function connectTelemetry() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host || 'localhost:8000';
+        const url = `${protocol}//${host}/ws/telemetry`;
+
+        try {
+          ws = new WebSocket(url);
+
+          ws.onopen = () => {
+            statusDot.className = 'status-dot connected';
+            telemetryLabel.textContent = 'Telemetry Live';
+          };
+
+          ws.onmessage = (event) => {
+            try {
+              const msg = JSON.parse(event.data);
+              if (msg.topic === 'SYSTEM_TELEMETRY' && msg.data) {
+                updateTelemetry(msg.data);
+              }
+            } catch (e) {
+              console.error('Error parsing telemetry:', e);
+            }
+          };
+
+          ws.onclose = () => {
+            statusDot.className = 'status-dot';
+            telemetryLabel.textContent = 'Reconnecting...';
+            setTimeout(connectTelemetry, 2000);
+          };
+
+          ws.onerror = () => {
+            ws.close();
+          };
+        } catch (e) {
+          setTimeout(connectTelemetry, 2000);
+        }
+      }
+
+      // Also connect to /ws/audience to capture audit words live
+      let audWs = null;
+      function connectAudienceFeed() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host || 'localhost:8000';
+        const url = `${protocol}//${host}/ws/audience`;
+
+        try {
+          audWs = new WebSocket(url);
+          audWs.onmessage = (event) => {
+            try {
+              const payload = JSON.parse(event.data);
+              if (payload.topic === 'AUDIENCE_VOCABULARY_CARD' && payload.data) {
+                addAuditWord(payload.data.word, payload.data.synonyms, payload.data.spokenTimeFormatted);
+              }
+            } catch (err) {}
+          };
+          audWs.onclose = () => setTimeout(connectAudienceFeed, 3000);
+        } catch (e) {}
+      }
+
+      // REST Actions
+      btnStageBlackout.addEventListener('click', async () => {
+        try {
+          const resp = await fetch('/api/control/stage/blackout', { method: 'POST' });
+          const res = await resp.json();
+          previewCard.style.opacity = '0.3';
+          previewWord.textContent = 'Screen Blanked';
+          previewSynonyms.textContent = 'Blackout Active';
+          showToast(`🚨 Stage Blackout: ${res.droppedQueuedCards || 0} queued cards cleared`);
+        } catch (e) {
+          showToast('Failed to execute blackout');
+        }
+      });
+
+      btnStageDismiss.addEventListener('click', async () => {
+        try {
+          await fetch('/api/control/stage/dismiss', { method: 'POST' });
+          previewCard.style.opacity = '0.4';
+          previewWord.textContent = 'Card Dismissed';
+          previewSynonyms.textContent = 'Popping Next';
+          showToast('⏭ Active stage card dismissed');
+        } catch (e) {
+          showToast('Failed to dismiss card');
+        }
+      });
+
+      btnToggleMute.addEventListener('click', async () => {
+        try {
+          const resp = await fetch('/api/control/audio/toggle', { method: 'POST' });
+          const res = await resp.json();
+          showToast(res.isMuted ? '🔇 Microphone Muted' : '🎙️ Microphone Live');
+        } catch (e) {
+          showToast('Failed to toggle audio');
+        }
+      });
+
+      injectionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const word = injectWord.value.trim();
+        const synList = injectSynonyms.value.split(',').map(s => s.trim()).filter(Boolean);
+        const def = injectDef.value.trim();
+        const phonetic = injectPhonetic.value.trim();
+
+        if (!word || synList.length === 0 || !def) return;
+
+        try {
+          const resp = await fetch('/api/control/stage/inject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              word: word,
+              synonyms: synList,
+              definition: def,
+              phoneticIpa: phonetic,
+              durationSeconds: 7.0
+            })
+          });
+
+          if (resp.ok) {
+            showToast(`⚡ Injected "${word}" to stage & audience!`);
+            addAuditWord(word, synList, new Date().toLocaleTimeString());
+            injectWord.value = '';
+            injectSynonyms.value = '';
+            injectDef.value = '';
+            injectPhonetic.value = '';
+          }
+        } catch (err) {
+          showToast('Failed to inject card');
+        }
+      });
+
+      // Initial State Poll
+      async function pollInitialState() {
+        try {
+          const resp = await fetch('/api/control/state');
+          if (resp.ok) {
+            const data = await resp.json();
+            updateTelemetry(data);
+          }
+        } catch (e) {}
+      }
+
+      // Initialize
+      pollInitialState();
+      connectTelemetry();
+      connectAudienceFeed();
+    })();
+  </script>
+</body>
+</html>

@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from src.api.routers.control import router as control_router
 from src.api.routers.export import router as export_router
 from src.api.routers.session import router as session_router
 from src.api.ws.hub import WebSocketHub
@@ -28,6 +29,7 @@ logger = logging.getLogger("verbaclear")
 WEB_DIR = Path(__file__).parent.parent / "web"
 STAGE_HTML = WEB_DIR / "stage" / "index.html"
 COMPANION_HTML = WEB_DIR / "companion" / "index.html"
+ADMIN_HTML = WEB_DIR / "admin" / "index.html"
 
 # Global instances
 ws_hub = WebSocketHub()
@@ -67,6 +69,7 @@ app.add_middleware(
 
 app.include_router(session_router)
 app.include_router(export_router)
+app.include_router(control_router)
 
 
 @app.get("/stage")
@@ -83,6 +86,14 @@ async def get_companion_portal():
     if not COMPANION_HTML.exists():
         raise HTTPException(status_code=404, detail="Companion template not found")
     return FileResponse(COMPANION_HTML, media_type="text/html")
+
+
+@app.get("/admin")
+async def get_admin_dashboard():
+    """Serves the AV operator control room dashboard."""
+    if not ADMIN_HTML.exists():
+        raise HTTPException(status_code=404, detail="Admin dashboard template not found")
+    return FileResponse(ADMIN_HTML, media_type="text/html")
 
 
 @app.get("/api/health")
