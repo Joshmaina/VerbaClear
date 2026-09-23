@@ -1,0 +1,25 @@
+services:
+  verbaclear:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: verbaclear-appliance
+    restart: unless-stopped
+    # Use host network mode for direct venue Wi-Fi LAN access and mDNS discovery
+    network_mode: host
+    # Pass through ALSA sound hardware for direct microphone capture
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - VERBACLEAR_HOST=0.0.0.0
+      - VERBACLEAR_PORT=8000
+      - VERBACLEAR_WHISPER_MODEL=tiny.en
+      - VERBACLEAR_COMPUTE_TYPE=int8
+      - VERBACLEAR_DEVICE=cpu
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3

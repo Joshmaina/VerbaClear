@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# VerbaClear Appliance Command Line Wrapper
+# Automatically detects local virtual environment and executes the CLI entrypoint.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_PYTHON="${SCRIPT_DIR}/.venv/bin/python"
+
+if [ -f "${VENV_PYTHON}" ]; then
+    PYTHON_BIN="${VENV_PYTHON}"
+else
+    PYTHON_BIN="$(which python3 || which python)"
+fi
+
+export PYTHONPATH="${SCRIPT_DIR}:${PYTHONPATH}"
+exec "${PYTHON_BIN}" -m src.interfaces.cli "$@"
