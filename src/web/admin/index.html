@@ -439,6 +439,79 @@
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
     }
 
+    /* Custom Pack Drawer */
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    .btn-delete-pack {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 0 12px;
+      height: 38px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .btn-delete-pack:hover {
+      background: rgba(239, 68, 68, 0.35);
+    }
+    .custom-pack-drawer {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .custom-pack-drawer.open {
+      display: flex;
+    }
+    .tab-btn-row {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 6px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
     /* Audit Log Stream */
     .audit-log-list {
       max-height: 240px;
@@ -652,18 +725,60 @@
       </div>
 
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:8px; align-items:center;">
           <select id="pack-select" class="input-field" style="flex:1; cursor:pointer;">
             <option value="">General Vocabulary (No Domain Overrides)</option>
           </select>
-          <button id="btn-activate-pack" class="btn-console" style="width:auto; padding:0 18px; height:38px; background:linear-gradient(135deg, #0284c7, #38bdf8); color:#fff;">
+          <button id="btn-activate-pack" class="btn-console" style="width:auto; padding:0 16px; height:38px; background:linear-gradient(135deg, #0284c7, #38bdf8); color:#fff;">
             Activate Pack
+          </button>
+          <button id="btn-delete-pack" class="btn-delete-pack" title="Delete custom pack">
+            🗑️
           </button>
         </div>
 
         <div id="pack-description-box" style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; line-height: 1.4;">
           Select a specialized industry pack to override terms with domain-specific definitions and simplified synonyms in real time.
         </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button id="btn-toggle-custom-pack" class="btn-secondary" type="button">
+            <span>➕ Upload or Create Custom Pack</span>
+          </button>
+        </div>
+
+        <!-- Custom Pack Creator & Uploader Drawer -->
+        <div id="custom-pack-drawer" class="custom-pack-drawer">
+          <div class="tab-btn-row">
+            <button id="tab-file-btn" class="tab-btn active" type="button">📁 File Upload (.JSON / .CSV)</button>
+            <button id="tab-text-btn" class="tab-btn" type="button">✍️ Quick Paste (CSV Text)</button>
+          </div>
+
+          <!-- Tab 1: File Upload -->
+          <div id="tab-file-content" style="display:flex; flex-direction:column; gap:8px;">
+            <input type="file" id="pack-file-input" accept=".json,.csv,.tsv,.txt" class="input-field" style="padding-top:6px; font-size:11px;">
+            <div class="form-row">
+              <input type="text" id="upload-pack-name" class="input-field" placeholder="Pack Name (Optional)">
+              <input type="text" id="upload-pack-badge" class="input-field" placeholder="Badge (e.g. Quantum)">
+            </div>
+            <button id="btn-submit-upload" class="btn-console btn-inject" type="button" style="height:36px; padding:0 12px; font-size:12px;">
+              🚀 Upload & Seed Pack
+            </button>
+          </div>
+
+          <!-- Tab 2: Quick CSV Paste -->
+          <div id="tab-text-content" style="display:none; flex-direction:column; gap:8px;">
+            <div class="form-row">
+              <input type="text" id="paste-pack-name" class="input-field" placeholder="Pack Name (e.g. Quantum Crypto)">
+              <input type="text" id="paste-pack-badge" class="input-field" placeholder="Badge (e.g. Quantum)">
+            </div>
+            <textarea id="paste-pack-csv" class="input-field" style="height:80px; padding:8px 12px; resize:vertical; font-family:monospace; font-size:11px;" placeholder="Term, Simplified Synonym, Domain Definition&#10;qubit, Quantum Bit, Basic unit of quantum information&#10;superposition, Dual State, Physical ability to exist in multiple states"></textarea>
+            <button id="btn-submit-paste" class="btn-console btn-inject" type="button" style="height:36px; padding:0 12px; font-size:12px;">
+              ⚡ Create & Activate Pack
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -976,6 +1091,22 @@
         }
       });
 
+      const btnDeletePack = document.getElementById('btn-delete-pack');
+      const btnToggleCustomPack = document.getElementById('btn-toggle-custom-pack');
+      const customPackDrawer = document.getElementById('custom-pack-drawer');
+      const tabFileBtn = document.getElementById('tab-file-btn');
+      const tabTextBtn = document.getElementById('tab-text-btn');
+      const tabFileContent = document.getElementById('tab-file-content');
+      const tabTextContent = document.getElementById('tab-text-content');
+      const packFileInput = document.getElementById('pack-file-input');
+      const uploadPackName = document.getElementById('upload-pack-name');
+      const uploadPackBadge = document.getElementById('upload-pack-badge');
+      const btnSubmitUpload = document.getElementById('btn-submit-upload');
+      const pastePackName = document.getElementById('paste-pack-name');
+      const pastePackBadge = document.getElementById('paste-pack-badge');
+      const pastePackCsv = document.getElementById('paste-pack-csv');
+      const btnSubmitPaste = document.getElementById('btn-submit-paste');
+
       // Context Packs Management
       async function loadContextPacks() {
         try {
@@ -989,7 +1120,7 @@
           availablePacks.forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.id;
-            opt.textContent = `${p.name} (${p.entryCount} terms) [${p.badge}]`;
+            opt.textContent = `${p.name} (${p.entryCount} terms) [${p.badge}]${p.isCustom ? ' *' : ''}`;
             if (p.id === data.activePackId) {
               opt.selected = true;
             }
@@ -1012,11 +1143,17 @@
         const val = packSelect.value;
         if (!val) {
           packDescriptionBox.textContent = 'General Vocabulary Baseline: High-frequency words filtered with NGSL 1.2 and NAWL, standard definitions used.';
+          if (btnDeletePack) btnDeletePack.style.display = 'none';
           return;
         }
         const selected = availablePacks.find(p => p.id === val);
         if (selected) {
           packDescriptionBox.innerHTML = `<strong>${selected.name} (${selected.badge}):</strong> ${selected.description} <em>(${selected.entryCount} curated terms)</em>`;
+          if (btnDeletePack) {
+            btnDeletePack.style.display = selected.isCustom ? 'inline-flex' : 'none';
+          }
+        } else {
+          if (btnDeletePack) btnDeletePack.style.display = 'none';
         }
       }
 
@@ -1049,6 +1186,143 @@
 
       btnActivatePack.addEventListener('click', () => {
         activateSelectedPack();
+      });
+
+      // Drawer Toggle
+      btnToggleCustomPack.addEventListener('click', () => {
+        customPackDrawer.classList.toggle('open');
+      });
+
+      // Tab Switching
+      tabFileBtn.addEventListener('click', () => {
+        tabFileBtn.classList.add('active');
+        tabTextBtn.classList.remove('active');
+        tabFileContent.style.display = 'flex';
+        tabTextContent.style.display = 'none';
+      });
+
+      tabTextBtn.addEventListener('click', () => {
+        tabTextBtn.classList.add('active');
+        tabFileBtn.classList.remove('active');
+        tabFileContent.style.display = 'none';
+        tabTextContent.style.display = 'flex';
+      });
+
+      // File Upload Handler
+      btnSubmitUpload.addEventListener('click', async () => {
+        if (!packFileInput.files || packFileInput.files.length === 0) {
+          showToast('Please select a .json or .csv pack file first');
+          return;
+        }
+        const file = packFileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+          const content = e.target.result;
+          try {
+            btnSubmitUpload.disabled = true;
+            btnSubmitUpload.textContent = 'Uploading...';
+            const resp = await fetch('/api/packs/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                filename: file.name,
+                content: content,
+                name: uploadPackName.value.trim() || null,
+                badge: uploadPackBadge.value.trim() || null
+              }),
+            });
+            const res = await resp.json();
+            if (resp.ok) {
+              showToast(`🚀 Pack "${res.pack.name}" seeded successfully!`);
+              await loadContextPacks();
+              packSelect.value = res.pack.id;
+              await activateSelectedPack();
+              customPackDrawer.classList.remove('open');
+              packFileInput.value = '';
+              uploadPackName.value = '';
+              uploadPackBadge.value = '';
+            } else {
+              showToast(`Upload failed: ${res.detail || 'Invalid pack'}`);
+            }
+          } catch (err) {
+            showToast('Error uploading pack file');
+          } finally {
+            btnSubmitUpload.disabled = false;
+            btnSubmitUpload.textContent = '🚀 Upload & Seed Pack';
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      // Quick Paste CSV Handler
+      btnSubmitPaste.addEventListener('click', async () => {
+        const name = pastePackName.value.trim();
+        const badge = pastePackBadge.value.trim();
+        const csv = pastePackCsv.value.trim();
+
+        if (!name || !badge || !csv) {
+          showToast('Please enter Pack Name, Badge, and CSV rows');
+          return;
+        }
+
+        try {
+          btnSubmitPaste.disabled = true;
+          btnSubmitPaste.textContent = 'Creating...';
+          const resp = await fetch('/api/packs/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: `${badge.toLowerCase()}_glossary.csv`,
+              content: csv,
+              name: name,
+              badge: badge
+            }),
+          });
+          const res = await resp.json();
+          if (resp.ok) {
+            showToast(`⚡ Custom Pack "${name}" created!`);
+            await loadContextPacks();
+            packSelect.value = res.pack.id;
+            await activateSelectedPack();
+            customPackDrawer.classList.remove('open');
+            pastePackName.value = '';
+            pastePackBadge.value = '';
+            pastePackCsv.value = '';
+          } else {
+            showToast(`Creation failed: ${res.detail || 'Could not parse CSV'}`);
+          }
+        } catch (err) {
+          showToast('Error creating pack from text');
+        } finally {
+          btnSubmitPaste.disabled = false;
+          btnSubmitPaste.textContent = '⚡ Create & Activate Pack';
+        }
+      });
+
+      // Delete Custom Pack Handler
+      btnDeletePack.addEventListener('click', async () => {
+        const val = packSelect.value;
+        if (!val) return;
+        const selected = availablePacks.find(p => p.id === val);
+        if (!selected || !selected.isCustom) return;
+
+        if (!confirm(`Are you sure you want to delete custom pack "${selected.name}"?`)) {
+          return;
+        }
+
+        try {
+          const resp = await fetch(`/api/packs/${val}`, { method: 'DELETE' });
+          const res = await resp.json();
+          if (resp.ok) {
+            showToast(`🗑️ Deleted pack: ${selected.name}`);
+            await loadContextPacks();
+          } else {
+            showToast(`Delete failed: ${res.detail || 'Cannot delete pack'}`);
+          }
+        } catch (e) {
+          showToast('Failed to delete pack');
+        }
       });
 
       // Initial State Poll
