@@ -31,6 +31,7 @@ class StageDisplayQueueManager:
         self._queue: asyncio.Queue[StageOverlayCard] = asyncio.Queue(maxsize=max_queue_depth)
         self._worker_task: Optional[asyncio.Task] = None
         self._is_running = False
+        self._delay_event = asyncio.Event()
 
     def start(self, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Starts the queue consumer worker task."""
@@ -47,6 +48,7 @@ class StageDisplayQueueManager:
     async def stop(self) -> None:
         """Stops the queue manager gracefully."""
         self._is_running = False
+        self.interrupt_delay()
         if self._worker_task:
             self._worker_task.cancel()
             try:
@@ -55,6 +57,10 @@ class StageDisplayQueueManager:
                 pass
             self._worker_task = None
         logger.debug("StageDisplayQueueManager stopped.")
+
+    def interrupt_delay(self) -> None:
+        """Interrupts the active delay separation to immediately process the next card or wake worker."""
+        self._delay_event.set()
 
     async def enqueue(self, card: StageOverlayCard) -> bool:
         """
@@ -83,8 +89,14 @@ class StageDisplayQueueManager:
                 await self._dispatch(card)
                 self._queue.task_done()
 
-                # Sleep to enforce presentation separation on the stage display
-                await asyncio.sleep(self.min_display_separation_s)
+                # Stagger emissions to enforce presentation separation on stage display
+                self._delay_event.clear()
+                try:
+                    await asyncio.wait_for(
+                        self._delay_event.wait(), timeout=self.min_display_separation_s
+                    )
+                except asyncio.TimeoutError:
+                    pass
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -92,7 +104,7 @@ class StageDisplayQueueManager:
                 await asyncio.sleep(0.5)
 
     def clear_queue(self) -> int:
-        """Drains all queued cards immediately. Returns count of dropped cards."""
+        """Drains all queued cards immediately and wakes any waiting worker. Returns count of dropped cards."""
         dropped = 0
         while not self._queue.empty():
             try:
@@ -101,6 +113,7 @@ class StageDisplayQueueManager:
                 dropped += 1
             except (asyncio.QueueEmpty, ValueError):
                 break
+        self.interrupt_delay()
         logger.info("Stage queue cleared by operator (dropped %d cards).", dropped)
         return dropped
 

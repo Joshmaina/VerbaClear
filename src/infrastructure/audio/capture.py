@@ -71,8 +71,9 @@ class PortAudioSource(AudioSourcePort):
         # Convert float32 or int16 to 1D float32 normalized between -1.0 and 1.0
         audio_frame = indata[:, 0].copy()
 
-        with self._lock:
-            self._buffer.append(audio_frame)
+        if hasattr(self, "_lock") and hasattr(self, "_buffer"):
+            with self._lock:
+                self._buffer.append(audio_frame)
 
     def start_stream(self) -> None:
         """Starts real-time PortAudio input capture."""

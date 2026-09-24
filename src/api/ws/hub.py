@@ -97,10 +97,11 @@ class WebSocketHub(BroadcasterPort):
         }
         await self._broadcast_to_set(self._stage_sockets, payload)
 
-    async def broadcast_stage_blackout(self) -> None:
-        """Forces immediate blanking and clearance of the stage lower-third overlay."""
+    async def broadcast_stage_blackout(self, is_blackout: bool = True) -> None:
+        """Forces immediate blanking or resumption of the stage lower-third overlay."""
         payload = {
             "topic": "STAGE_BLACKOUT",
+            "isBlackout": is_blackout,
             "timestamp": int(time.time() * 1000),
         }
         await self._broadcast_to_set(self._stage_sockets, payload)

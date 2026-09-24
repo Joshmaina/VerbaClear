@@ -901,7 +901,11 @@
 
       // Native Speech Pronunciation Audio Assist
       function pronounceWord(word, btn) {
-        if ('speechSynthesis' in window) {
+        if (!('speechSynthesis' in window)) {
+          showToast('Speech audio not supported on this device');
+          return;
+        }
+        try {
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(word);
           utterance.lang = 'en-US';
@@ -912,6 +916,9 @@
             utterance.onerror = () => btn.classList.remove('speaking');
           }
           window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          if (btn) btn.classList.remove('speaking');
+          showToast('Pronunciation audio error');
         }
       }
 
@@ -1223,10 +1230,18 @@
         renderFeed();
       }
 
+      // Dynamic Host & Base URL Resolution
+      const isFile = window.location.protocol === 'file:';
+      const defaultHost = 'localhost:8000';
+      const host = (isFile || !window.location.host) ? defaultHost : window.location.host;
+      const isHttps = window.location.protocol === 'https:';
+      const API_BASE = isFile ? `http://${defaultHost}` : '';
+      const WS_BASE = `${isHttps ? 'wss:' : 'ws:'}//${host}`;
+
       // Initial Fetch from Server Session
       async function fetchSessionHistory() {
         try {
-          const resp = await fetch('/api/session/cards');
+          const resp = await fetch(`${API_BASE}/api/session/cards`);
           if (resp.ok) {
             const data = await resp.json();
             if (Array.isArray(data)) {
@@ -1241,11 +1256,10 @@
       // WebSocket Connection
       let socket = null;
       let reconnectAttempts = 0;
+      let pingInterval = null;
 
       function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host || 'localhost:8000';
-        const wsUrl = `${protocol}//${host}/ws/audience`;
+        const wsUrl = `${WS_BASE}/ws/audience`;
 
         statusText.textContent = 'Connecting';
         statusDot.className = 'status-dot';
@@ -1258,6 +1272,13 @@
             statusDot.className = 'status-dot connected';
             statusText.textContent = 'Live';
             console.log('[VerbaClear Companion] Connected to:', wsUrl);
+
+            if (pingInterval) clearInterval(pingInterval);
+            pingInterval = setInterval(() => {
+              if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send('ping');
+              }
+            }, 15000);
           };
 
           socket.onmessage = function(event) {
@@ -1273,6 +1294,7 @@
           };
 
           socket.onclose = function() {
+            if (pingInterval) clearInterval(pingInterval);
             statusDot.className = 'status-dot';
             statusText.textContent = 'Reconnecting';
             scheduleReconnect();
@@ -1311,7 +1333,7 @@
 
         try {
           showToast('Generating Anki .apkg...');
-          const resp = await fetch('/api/export/anki', {
+          const resp = await fetch(`${API_BASE}/api/export/anki`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cards: cardsToExport }),
@@ -1460,6 +1482,34 @@
       btnDownloadAnkiApkg.addEventListener('click', downloadAnkiApkg);
       btnDownloadAnkiTsv.addEventListener('click', downloadAnkiTsvClientSide);
       btnDownloadCsv.addEventListener('click', downloadCsvClientSide);
+
+      // Keyboard Shortcuts for attendee accessibility
+      window.addEventListener('keydown', (e) => {
+        const isTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+
+        if (e.key === 'Escape') {
+          if (exportModal.classList.contains('open')) {
+            exportModal.classList.remove('open');
+          } else if (searchBox.value) {
+            searchBox.value = '';
+            searchQuery = '';
+            searchClearBtn.style.display = 'none';
+            searchBox.blur();
+            renderFeed();
+          }
+        } else if (!isTyping) {
+          if (e.key === '/' || (e.key === 'k' && (e.ctrlKey || e.metaKey))) {
+            e.preventDefault();
+            searchBox.focus();
+          } else if (e.key === '1') {
+            tabAll.click();
+          } else if (e.key === '2') {
+            tabBookmarks.click();
+          } else if (e.key === 'e' || e.key === 'E') {
+            btnOpenExport.click();
+          }
+        }
+      });
 
       // App Initialization
       async function init() {

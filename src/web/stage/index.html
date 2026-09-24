@@ -383,9 +383,15 @@
 
       let currentTimer = null;
       let countdownInterval = null;
+      let isBlackoutActive = false;
 
       // Card Display Lifecycle Function
       function displayCard(data) {
+        if (isBlackoutActive) {
+          console.warn('[VerbaClear Stage] displayCard blocked by active stage blackout.');
+          return;
+        }
+
         const word = data.word || "Vocabulary";
         const synonyms = data.synonyms || [];
         const durationS = parseFloat(data.displayDurationSeconds || 7.0);
@@ -440,10 +446,13 @@
       // WebSocket Connection with Exponential Backoff
       let socket = null;
       let reconnectAttempts = 0;
+      let pingInterval = null;
 
       function connectWebSocket() {
+        const isFile = window.location.protocol === 'file:';
+        const defaultHost = 'localhost:8000';
+        const host = (isFile || !window.location.host) ? defaultHost : window.location.host;
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host || 'localhost:8000';
         const wsUrl = `${protocol}//${host}/ws/stage`;
 
         statusLabel.textContent = 'Connecting...';
@@ -454,24 +463,50 @@
 
           socket.onopen = function() {
             reconnectAttempts = 0;
-            statusDot.className = 'status-dot connected';
-            statusLabel.textContent = 'Stage Live';
+            statusDot.className = isBlackoutActive ? 'status-dot' : 'status-dot connected';
+            statusLabel.textContent = isBlackoutActive ? 'Stage Blackout' : 'Stage Live';
             console.log('[VerbaClear Stage] Connected to:', wsUrl);
+
+            if (pingInterval) clearInterval(pingInterval);
+            pingInterval = setInterval(() => {
+              if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send('ping');
+              }
+            }, 15000);
           };
 
           socket.onmessage = function(event) {
             try {
               const payload = JSON.parse(event.data);
               console.log('[VerbaClear Stage] Message received:', payload);
-              if (payload.topic === 'STAGE_DISPLAY_POP' && payload.data) {
-                displayCard(payload.data);
-              } else if (payload.topic === 'STAGE_BLACKOUT' || payload.topic === 'STAGE_DISMISS') {
+              if (payload.topic === 'STAGE_BLACKOUT') {
+                isBlackoutActive = payload.isBlackout !== false;
                 if (currentTimer) clearTimeout(currentTimer);
                 if (countdownInterval) clearInterval(countdownInterval);
                 card.classList.remove('visible');
                 card.classList.add('exiting');
                 timerDisplay.textContent = '0.0s';
                 progressFill.classList.remove('decaying');
+                if (isBlackoutActive) {
+                  statusLabel.textContent = 'Stage Blackout';
+                  statusDot.className = 'status-dot';
+                } else {
+                  statusLabel.textContent = 'Stage Live';
+                  statusDot.className = 'status-dot connected';
+                }
+              } else if (payload.topic === 'STAGE_DISMISS') {
+                if (currentTimer) clearTimeout(currentTimer);
+                if (countdownInterval) clearInterval(countdownInterval);
+                card.classList.remove('visible');
+                card.classList.add('exiting');
+                timerDisplay.textContent = '0.0s';
+                progressFill.classList.remove('decaying');
+              } else if (payload.topic === 'STAGE_DISPLAY_POP' && payload.data) {
+                if (isBlackoutActive) {
+                  console.log('[VerbaClear Stage] Card suppressed due to active blackout:', payload.data.word);
+                  return;
+                }
+                displayCard(payload.data);
               }
             } catch (err) {
               console.error('[VerbaClear Stage] Error parsing payload:', err);
@@ -479,6 +514,7 @@
           };
 
           socket.onclose = function() {
+            if (pingInterval) clearInterval(pingInterval);
             statusDot.className = 'status-dot';
             statusLabel.textContent = 'Reconnecting...';
             scheduleReconnect();
@@ -505,12 +541,59 @@
 
       // Expose diagnostic trigger for testing in console
       window.verbaClearTest = function(word, synonyms, duration) {
+        if (isBlackoutActive) {
+          isBlackoutActive = false;
+          statusLabel.textContent = 'Stage Live';
+          statusDot.className = socket && socket.readyState === WebSocket.OPEN ? 'status-dot connected' : 'status-dot';
+        }
         displayCard({
           word: word || "Labyrinthine",
           synonyms: synonyms || ["Highly Complex", "Maze-like"],
           displayDurationSeconds: duration || 7.0
         });
       };
+
+      // Operator test keyboard shortcuts when viewing stage directly in browser
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 't' || e.key === 'T' || e.code === 'Space') {
+          e.preventDefault();
+          window.verbaClearTest();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          if (currentTimer) clearTimeout(currentTimer);
+          if (countdownInterval) clearInterval(countdownInterval);
+          card.classList.remove('visible');
+          card.classList.add('exiting');
+          timerDisplay.textContent = '0.0s';
+          progressFill.classList.remove('decaying');
+        } else if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault();
+          isBlackoutActive = !isBlackoutActive;
+          if (isBlackoutActive) {
+            if (currentTimer) clearTimeout(currentTimer);
+            if (countdownInterval) clearInterval(countdownInterval);
+            card.classList.remove('visible');
+            card.classList.add('exiting');
+            timerDisplay.textContent = '0.0s';
+            progressFill.classList.remove('decaying');
+            statusLabel.textContent = 'Stage Blackout';
+            statusDot.className = 'status-dot';
+          } else {
+            statusLabel.textContent = 'Stage Live';
+            statusDot.className = socket && socket.readyState === WebSocket.OPEN ? 'status-dot connected' : 'status-dot';
+          }
+        }
+      });
+
+      // Clicking connection indicator triggers test card
+      const connectionIndicator = document.getElementById('connection-indicator');
+      if (connectionIndicator) {
+        connectionIndicator.style.cursor = 'pointer';
+        connectionIndicator.title = 'Click to test card [T] | Press [ESC] to clear | [B] to toggle blackout';
+        connectionIndicator.addEventListener('click', () => {
+          window.verbaClearTest();
+        });
+      }
     })();
   </script>
 </body>

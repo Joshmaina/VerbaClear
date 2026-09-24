@@ -4,8 +4,10 @@ Manages the application lifecycle, WebSocket routes, and REST endpoints.
 """
 
 from contextlib import asynccontextmanager
+import json
 import logging
 import sys
+import time
 import uvicorn
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -44,8 +46,8 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing VerbaClear ASGI runtime...")
     loop = asyncio.get_running_loop()
     orchestrator.attach_event_loop(loop)
+    orchestrator.start()
 
-    # Note: Orchestrator audio stream can be started here or triggered via API
     logger.info("VerbaClear WebSocket hub and orchestrator ready.")
     yield
     logger.info("Shutting down VerbaClear ASGI runtime...")
@@ -117,6 +119,13 @@ async def websocket_stage_endpoint(websocket: WebSocket):
     """WebSocket channel for the Primary Stage Lower-Third Overlay."""
     await ws_hub.connect_stage(websocket)
     try:
+        # If blackout is currently active, inform newly connected stage screen immediately
+        if orchestrator.is_stage_blackout:
+            await websocket.send_text(json.dumps({
+                "topic": "STAGE_BLACKOUT",
+                "isBlackout": True,
+                "timestamp": int(time.time() * 1000),
+            }))
         while True:
             # Stage overlay is passive; listen for heartbeats / client pings
             _ = await websocket.receive_text()

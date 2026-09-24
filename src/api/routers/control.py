@@ -9,11 +9,15 @@ Provides sound booth technicians with real-time controls:
 
 import logging
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/control", tags=["Operator Control"])
 logger = logging.getLogger(__name__)
+
+
+class StageBlackoutRequest(BaseModel):
+    state: Optional[bool] = Field(None, description="True to force blackout, False to force resume, None to toggle")
 
 
 class InjectCardRequest(BaseModel):
@@ -35,22 +39,26 @@ async def get_control_state():
 
 
 @router.post("/stage/blackout")
-async def trigger_stage_blackout():
+async def trigger_stage_blackout(request: Optional[StageBlackoutRequest] = Body(None)):
     """
     Emergency Stage Blackout:
-    Instantly purges all queued vocabulary cards and forces the stage lower-third screen
-    to blank immediately.
+    Toggles or sets stage blackout state.
+    When active, purges all queued vocabulary cards, suppresses stage card emission,
+    and forces the stage lower-third screen to blank immediately.
     """
     from src.api.main import orchestrator
     if not orchestrator:
         raise HTTPException(status_code=503, detail="Orchestrator not initialized")
 
-    dropped = await orchestrator.blackout_stage()
+    force_state = request.state if request else None
+    dropped = await orchestrator.blackout_stage(force_state=force_state)
+    is_blackout = orchestrator.is_stage_blackout
     return {
         "status": "success",
         "action": "STAGE_BLACKOUT",
+        "isBlackout": is_blackout,
         "droppedQueuedCards": dropped,
-        "message": f"Stage lower-third blanked immediately; {dropped} queued items purged.",
+        "message": f"Stage lower-third blanked immediately; {dropped} queued items purged." if is_blackout else "Stage lower-third display resumed.",
     }
 
 

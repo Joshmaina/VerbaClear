@@ -54,6 +54,7 @@ class VerbaClearOrchestrator:
 
         self._async_loop: Optional[asyncio.AbstractEventLoop] = None
         self._is_active = False
+        self.is_stage_blackout = False
         self._telemetry_task: Optional[asyncio.Task] = None
 
         # Session vocabulary history for mobile attendee onboarding and export
@@ -73,13 +74,12 @@ class VerbaClearOrchestrator:
 
     def start(self) -> None:
         """Starts audio pipeline, queue workers, and telemetry broadcasts."""
-        if self._is_active:
-            logger.warning("Orchestrator is already active.")
-            return
-
         self._is_active = True
         self.stage_queue.start(loop=self._async_loop)
-        self.audio_pipeline.start()
+        try:
+            self.audio_pipeline.start()
+        except Exception as e:
+            logger.warning("Could not start audio input hardware pipeline (simulated/headless mode): %s", str(e))
 
         if self._async_loop and self._async_loop.is_running():
             self._telemetry_task = self._async_loop.create_task(
@@ -136,13 +136,15 @@ class VerbaClearOrchestrator:
                 ev.lemma, active_pack_id=self.active_pack_id
             )
 
-            # 1. Build Stage Overlay Card (Ambient Glance)
-            stage_card = StageOverlayCard(
-                card_id=card_id,
-                word=ev.lemma,
-                synonyms=synonyms,
-                display_duration_s=7.0,
-            )
+            # 1. Build Stage Overlay Card (Ambient Glance) - suppressed during blackout
+            stage_card = None
+            if not self.is_stage_blackout:
+                stage_card = StageOverlayCard(
+                    card_id=card_id,
+                    word=ev.lemma,
+                    synonyms=synonyms,
+                    display_duration_s=7.0,
+                )
 
             # 2. Build Audience Mobile Companion Card (Deep Dive Notebook)
             domain_badge = self.pack_manager.active_pack_badge if self.active_pack_id else "General"
@@ -172,15 +174,16 @@ class VerbaClearOrchestrator:
                             self._session_history.pop(0)
                     logger.warning("No active asyncio event loop attached to orchestrator; recorded card to history directly.")
 
-    async def _dispatch_cards(self, stage_card: StageOverlayCard, audience_card: AudienceCompanionCard) -> None:
+    async def _dispatch_cards(self, stage_card: Optional[StageOverlayCard], audience_card: AudienceCompanionCard) -> None:
         """Dispatches cards to respective stage and audience queues and records history."""
         with self._history_lock:
             self._session_history.append(audience_card)
             if len(self._session_history) > 500:
                 self._session_history.pop(0)
 
-        # Enqueue for staggered stage display
-        await self.stage_queue.enqueue(stage_card)
+        # Enqueue for staggered stage display if card present and not in blackout
+        if stage_card and not self.is_stage_blackout:
+            await self.stage_queue.enqueue(stage_card)
 
         # Immediate broadcast to audience mobile devices
         await self.ws_hub.broadcast_audience(audience_card)
@@ -211,15 +214,32 @@ class VerbaClearOrchestrator:
                 logger.error("Telemetry loop error: %s", str(e))
                 await asyncio.sleep(1.0)
 
-    async def blackout_stage(self) -> int:
-        """Purges pending stage queue items and forces stage screen to blank immediately."""
-        dropped = self.stage_queue.clear_queue()
-        await self.ws_hub.broadcast_stage_blackout()
-        logger.info("Stage blackout triggered. Dropped %d queued cards.", dropped)
+    async def blackout_stage(self, force_state: Optional[bool] = None) -> int:
+        """
+        Toggles or enforces stage blackout state.
+        When active, stage cards are suppressed and the screen is blanked immediately.
+        Returns the number of queued cards purged.
+        """
+        if force_state is not None:
+            self.is_stage_blackout = bool(force_state)
+        else:
+            self.is_stage_blackout = not self.is_stage_blackout
+
+        dropped = 0
+        if self.is_stage_blackout:
+            dropped = self.stage_queue.clear_queue()
+            self.stage_queue.interrupt_delay()
+            await self.ws_hub.broadcast_stage_blackout(is_blackout=True)
+            logger.info("Stage blackout ENGAGED. Dropped %d queued cards.", dropped)
+        else:
+            await self.ws_hub.broadcast_stage_blackout(is_blackout=False)
+            logger.info("Stage blackout DISENGAGED. Resumed stage overlays.")
+
         return dropped
 
     async def dismiss_stage_card(self) -> None:
-        """Dismisses the active lower-third stage overlay card early."""
+        """Dismisses the active lower-third stage overlay card early and pops next queued item."""
+        self.stage_queue.interrupt_delay()
         await self.ws_hub.broadcast_stage_dismiss()
         logger.info("Stage card dismissed early by operator.")
 
@@ -291,6 +311,7 @@ class VerbaClearOrchestrator:
             "connectedAudienceClients": self.ws_hub.audience_client_count,
             "connectedTelemetryClients": self.ws_hub.telemetry_client_count,
             "stageQueueDepth": self.stage_queue.queue_size,
+            "isStageBlackout": self.is_stage_blackout,
             "activePackId": self.active_pack_id,
             "activePackBadge": self.pack_manager.active_pack_badge,
         }

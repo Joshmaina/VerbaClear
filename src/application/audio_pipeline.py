@@ -76,13 +76,16 @@ class AudioASRPipeline:
 
     def start(self) -> None:
         """Starts audio capture and processing worker thread."""
-        if self._is_running:
-            logger.warning("Pipeline is already running.")
+        if not getattr(self.audio_source, "is_active", False):
+            try:
+                self.audio_source.start_stream()
+            except Exception as e:
+                logger.warning("Could not initialize hardware audio stream: %s", str(e))
+
+        if self._is_running and self._thread and self._thread.is_alive():
             return
 
         self._is_running = True
-        self.audio_source.start_stream()
-
         self._thread = threading.Thread(target=self._worker_loop, daemon=True, name="AudioASRWorker")
         self._thread.start()
         logger.info("AudioASRPipeline worker thread started.")
