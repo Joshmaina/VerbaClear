@@ -213,11 +213,23 @@ class SQLiteLexiconRepository:
                     term TEXT NOT NULL,
                     abbreviation TEXT,
                     domain_definition TEXT NOT NULL,
-                    simplified_synonym TEXT NOT NULL
+                    simplified_synonym TEXT NOT NULL,
+                    phonetic_ipa TEXT,
+                    part_of_speech TEXT
                 );
 
                 CREATE INDEX IF NOT EXISTS idx_context_pack_lookup ON context_pack_entries(pack_id, term);
             """)
+
+            # Gracefully apply columns if table already existed without them
+            try:
+                conn.execute("ALTER TABLE context_pack_entries ADD COLUMN phonetic_ipa TEXT;")
+            except Exception:
+                pass
+            try:
+                conn.execute("ALTER TABLE context_pack_entries ADD COLUMN part_of_speech TEXT;")
+            except Exception:
+                pass
 
     def _seed_default_vocabulary(self) -> None:
         """Seeds standard advanced vocabulary if not already populated."""
@@ -252,15 +264,15 @@ class SQLiteLexiconRepository:
             # 1. Check active context pack if enabled
             if active_pack_id:
                 cursor.execute(
-                    "SELECT domain_definition, simplified_synonym FROM context_pack_entries WHERE pack_id = ? AND LOWER(term) = ?",
+                    "SELECT domain_definition, simplified_synonym, phonetic_ipa, part_of_speech FROM context_pack_entries WHERE pack_id = ? AND LOWER(term) = ?",
                     (active_pack_id, hw),
                 )
                 pack_row = cursor.fetchone()
                 if pack_row:
                     return {
                         "headword": hw,
-                        "part_of_speech": "noun",
-                        "phonetic_ipa": None,
+                        "part_of_speech": pack_row["part_of_speech"] or "noun",
+                        "phonetic_ipa": pack_row["phonetic_ipa"],
                         "definition": pack_row["domain_definition"],
                         "synonyms": [pack_row["simplified_synonym"]],
                         "source": "context_pack",

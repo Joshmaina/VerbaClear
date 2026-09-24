@@ -1,0 +1,73 @@
+{
+  "id": "pack_ai",
+  "name": "AI & Distributed Systems",
+  "version": "1.0.0",
+  "badge": "AI & Systems",
+  "description": "High-level computer science, machine learning, and cloud architecture terminology for tech keynotes.",
+  "entries": [
+    {
+      "term": "idempotency",
+      "abbreviation": null,
+      "domain_definition": "The property of an operation whereby applying it multiple consecutive times produces the identical outcome as once.",
+      "simplified_synonym": "Repeat-Safe",
+      "phonetic_ipa": "/ˌaɪ.dəmˈpəʊ.tən.si/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "orthogonality",
+      "abbreviation": null,
+      "domain_definition": "System modularity where changing one component or parameter causes zero side-effects on others.",
+      "simplified_synonym": "Independent Design",
+      "phonetic_ipa": "/ˌɔː.θɒɡ.əˈnæl.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "stochastic",
+      "abbreviation": null,
+      "domain_definition": "Involving probabilistic randomness or indeterminate random variables in modeling and predictive outcomes.",
+      "simplified_synonym": "Randomly Determined",
+      "phonetic_ipa": "/stəˈkæs.tɪk/",
+      "part_of_speech": "adjective"
+    },
+    {
+      "term": "quantization",
+      "abbreviation": null,
+      "domain_definition": "Compressing machine learning models by mapping high-precision 32-bit floating point weights into 8-bit integers.",
+      "simplified_synonym": "Precision Compression",
+      "phonetic_ipa": "/ˌkwɒn.tɪˈzeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "backpropagation",
+      "abbreviation": null,
+      "domain_definition": "The core supervised neural network algorithm computing gradient loss backwards across layers to update weights.",
+      "simplified_synonym": "Gradient Calculation",
+      "phonetic_ipa": "/ˌbæk.prɒp.əˈɡeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "heuristics",
+      "abbreviation": null,
+      "domain_definition": "A practical computational shortcut or rule-of-thumb strategy that is not guaranteed to be optimal but is fast.",
+      "simplified_synonym": "Rule of Thumb",
+      "phonetic_ipa": "/hjʊəˈrɪs.tɪks/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "sharding",
+      "abbreviation": null,
+      "domain_definition": "Horizontally partitioning a database or dataset across multiple server instances to distribute write load.",
+      "simplified_synonym": "Horizontal Partitioning",
+      "phonetic_ipa": "/ˈʃɑː.dɪŋ/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "determinism",
+      "abbreviation": null,
+      "domain_definition": "The property that identical inputs and system configurations will consistently produce the exact same output.",
+      "simplified_synonym": "Predictable Output",
+      "phonetic_ipa": "/dɪˈtɜː.mɪ.nɪ.zəm/",
+      "part_of_speech": "noun"
+    }
+  ]
+}

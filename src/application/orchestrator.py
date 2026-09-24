@@ -15,6 +15,7 @@ from src.api.ws.hub import WebSocketHub
 from src.api.ws.rate_limiter import StageDisplayQueueManager
 from src.application.audio_pipeline import AudioASRPipeline
 from src.domain.models import AudienceCompanionCard, StageOverlayCard, TranscribedSegment
+from src.infrastructure.nlp.context_packs import ContextPackManager
 from src.infrastructure.nlp.filter import LexicalFilterEngine
 
 logger = logging.getLogger(__name__)
@@ -36,10 +37,16 @@ class VerbaClearOrchestrator:
         active_pack_id: Optional[str] = None,
     ):
         self.session_id = session_id or f"sess_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.active_pack_id = active_pack_id
 
         self.ws_hub = ws_hub or WebSocketHub()
         self.lexical_filter = lexical_filter or LexicalFilterEngine()
+        self.pack_manager = ContextPackManager(repo=self.lexical_filter.lexicon_repo)
+        if active_pack_id:
+            self.pack_manager.activate_pack(active_pack_id)
+            self.active_pack_id = self.pack_manager.active_pack_id
+        else:
+            self.active_pack_id = None
+
         self.stage_queue = StageDisplayQueueManager(
             dispatch_coroutine=self.ws_hub.broadcast_stage,
             min_display_separation_s=4.0,
@@ -108,7 +115,7 @@ class VerbaClearOrchestrator:
             return
 
         # Phase 2: Linguistic and Frequency Evaluation
-        evaluations = self.lexical_filter.evaluate_sentence(segment.text)
+        evaluations = self.lexical_filter.evaluate_sentence(segment.text, active_pack_id=self.active_pack_id)
         if not evaluations:
             return
 
@@ -138,6 +145,7 @@ class VerbaClearOrchestrator:
             )
 
             # 2. Build Audience Mobile Companion Card (Deep Dive Notebook)
+            domain_badge = self.pack_manager.active_pack_badge if self.active_pack_id else "General"
             audience_card = AudienceCompanionCard(
                 card_id=card_id,
                 word=ev.lemma,
@@ -147,14 +155,22 @@ class VerbaClearOrchestrator:
                 definition=definition or f"Specialized terminology: {ev.lemma}.",
                 context_sentence=ev.context_sentence,
                 spoken_time_formatted=now_formatted,
-                domain_badge="Domain" if self.active_pack_id else "General",
+                domain_badge=domain_badge,
             )
 
             # Schedule threadsafe async dispatch into ASGI event loop
             if self._async_loop and self._async_loop.is_running():
                 asyncio.run_coroutine_threadsafe(self._dispatch_cards(stage_card, audience_card), self._async_loop)
             else:
-                logger.warning("No active asyncio event loop attached to orchestrator.")
+                try:
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(self._dispatch_cards(stage_card, audience_card))
+                except RuntimeError:
+                    with self._history_lock:
+                        self._session_history.append(audience_card)
+                        if len(self._session_history) > 500:
+                            self._session_history.pop(0)
+                    logger.warning("No active asyncio event loop attached to orchestrator; recorded card to history directly.")
 
     async def _dispatch_cards(self, stage_card: StageOverlayCard, audience_card: AudienceCompanionCard) -> None:
         """Dispatches cards to respective stage and audience queues and records history."""
@@ -247,6 +263,13 @@ class VerbaClearOrchestrator:
         """Toggles audio mute/unmute. Returns new muted boolean state."""
         return self.audio_pipeline.toggle_mute()
 
+    def set_active_pack(self, pack_id: Optional[str]) -> bool:
+        """Switches or deactivates the domain context pack on the fly."""
+        success = self.pack_manager.activate_pack(pack_id)
+        if success:
+            self.active_pack_id = self.pack_manager.active_pack_id
+        return success
+
     def get_telemetry(self) -> dict:
         """Returns snapshot of real-time appliance performance metrics."""
         metrics = self.audio_pipeline.metrics
@@ -268,5 +291,7 @@ class VerbaClearOrchestrator:
             "connectedAudienceClients": self.ws_hub.audience_client_count,
             "connectedTelemetryClients": self.ws_hub.telemetry_client_count,
             "stageQueueDepth": self.stage_queue.queue_size,
+            "activePackId": self.active_pack_id,
+            "activePackBadge": self.pack_manager.active_pack_badge,
         }
 

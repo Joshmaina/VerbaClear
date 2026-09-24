@@ -1,0 +1,73 @@
+{
+  "id": "pack_legal",
+  "name": "Legal & Corporate Law",
+  "version": "1.0.0",
+  "badge": "Legal",
+  "description": "Statutory, contract, and litigation terminology for legal seminars and executive summits.",
+  "entries": [
+    {
+      "term": "indemnification",
+      "abbreviation": null,
+      "domain_definition": "A contractual agreement by one party to hold harmless and compensate another for legal damages or losses.",
+      "simplified_synonym": "Liability Shield",
+      "phonetic_ipa": "/ɪnˌdem.nɪ.fɪˈkeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "fiduciary",
+      "abbreviation": null,
+      "domain_definition": "An ethical and legal obligation of highest loyalty and care to act solely in the best interest of another party.",
+      "simplified_synonym": "Trustee Duty",
+      "phonetic_ipa": "/fɪˈdjuː.ʃi.ər.i/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "jurisprudence",
+      "abbreviation": null,
+      "domain_definition": "The formal theoretical study, philosophy, and institutional body of legal doctrines and court interpretations.",
+      "simplified_synonym": "Legal Philosophy",
+      "phonetic_ipa": "/ˌdʒʊə.rɪsˈpruː.dəns/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "subrogation",
+      "abbreviation": null,
+      "domain_definition": "The legal right of one party to substitute into another party's position to collect third-party damages.",
+      "simplified_synonym": "Claim Transfer",
+      "phonetic_ipa": "/ˌsʌb.rəˈɡeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "severability",
+      "abbreviation": null,
+      "domain_definition": "A contractual clause stating that if any portion is declared unenforceable, the remaining terms remain binding.",
+      "simplified_synonym": "Independent Clauses",
+      "phonetic_ipa": "/ˌsev.ər.əˈbɪl.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "estoppel",
+      "abbreviation": null,
+      "domain_definition": "A legal bar preventing someone from asserting a right or fact that contradicts their own previous actions or claims.",
+      "simplified_synonym": "Contradiction Bar",
+      "phonetic_ipa": "/ɪˈstɒp.əl/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "covenant",
+      "abbreviation": null,
+      "domain_definition": "A formal, legally binding solemn pledge or operational restriction established within an agreement or deed.",
+      "simplified_synonym": "Binding Promise",
+      "phonetic_ipa": "/ˈkʌv.ə.nənt/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "injunction",
+      "abbreviation": null,
+      "domain_definition": "An authoritative judicial court order commanding a party to halt a specific activity or perform an affirmative act.",
+      "simplified_synonym": "Court Restraining Order",
+      "phonetic_ipa": "/ɪnˈdʒʌŋk.ʃən/",
+      "part_of_speech": "noun"
+    }
+  ]
+}

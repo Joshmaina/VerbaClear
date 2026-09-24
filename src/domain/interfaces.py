@@ -62,7 +62,7 @@ class LexicalFilterPort(ABC):
     """Port for linguistic rarity evaluation, lemmatization, and synonym matching."""
 
     @abstractmethod
-    def evaluate_sentence(self, text: str) -> List[VocabularyEvaluation]:
+    def evaluate_sentence(self, text: str, active_pack_id: Optional[str] = None) -> List[VocabularyEvaluation]:
         """Extracts and evaluates tokens from a transcribed sentence against frequency baselines."""
         pass
 

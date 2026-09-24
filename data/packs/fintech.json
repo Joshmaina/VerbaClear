@@ -1,0 +1,89 @@
+{
+  "id": "pack_fintech",
+  "name": "FinTech & Capital Markets",
+  "version": "1.0.0",
+  "badge": "FinTech",
+  "description": "Specialized terminology for banking, DeFi, high-frequency trading, and corporate finance.",
+  "entries": [
+    {
+      "term": "fungibility",
+      "abbreviation": null,
+      "domain_definition": "The property of a good or commodity whose individual units are capable of mutual substitution.",
+      "simplified_synonym": "Interchangeability",
+      "phonetic_ipa": "/ˌfʌn.dʒəˈbɪl.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "arbitrage",
+      "abbreviation": null,
+      "domain_definition": "The simultaneous purchase and sale of equivalent assets in different markets to exploit price discrepancies.",
+      "simplified_synonym": "Price Exploitation",
+      "phonetic_ipa": "/ˈɑː.bɪ.trɑːʒ/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "liquidity",
+      "abbreviation": null,
+      "domain_definition": "The ease with which an asset can be converted into ready cash without affecting its market price.",
+      "simplified_synonym": "Cash Flow Access",
+      "phonetic_ipa": "/lɪˈkwɪd.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "collateralization",
+      "abbreviation": null,
+      "domain_definition": "The act of pledging an asset to a lender to secure repayment of a loan or financial obligation.",
+      "simplified_synonym": "Pledged Backing",
+      "phonetic_ipa": "/kəˌlæt.ər.əl.aɪˈzeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "derivatives",
+      "abbreviation": null,
+      "domain_definition": "Financial contracts whose value is dependent upon or derived from an underlying asset or group of assets.",
+      "simplified_synonym": "Derived Contracts",
+      "phonetic_ipa": "/dɪˈrɪv.ə.tɪvz/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "tokenomics",
+      "abbreviation": null,
+      "domain_definition": "The economic incentives, monetary policy, and distribution design governing a digital cryptocurrency token.",
+      "simplified_synonym": "Token Economics",
+      "phonetic_ipa": "/ˌtoʊ.kəˈnɒm.ɪks/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "solvency",
+      "abbreviation": null,
+      "domain_definition": "The ability of an enterprise to meet its long-term financial commitments and obligations.",
+      "simplified_synonym": "Debt-Paying Ability",
+      "phonetic_ipa": "/ˈsɒl.vən.si/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "securitization",
+      "abbreviation": null,
+      "domain_definition": "The financial practice of pooling various contractual debts and packaging them into interest-bearing securities.",
+      "simplified_synonym": "Debt Packaging",
+      "phonetic_ipa": "/sɪˌkjʊə.rɪ.taɪˈzeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "amortization",
+      "abbreviation": null,
+      "domain_definition": "The scheduled gradual reduction of a debt obligation over time through regular periodic payments.",
+      "simplified_synonym": "Gradual Paydown",
+      "phonetic_ipa": "/əˌmɔː.tɪˈzeɪ.ʃən/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "slippage",
+      "abbreviation": null,
+      "domain_definition": "The price discrepancy between the expected price of a trade and the actual execution price.",
+      "simplified_synonym": "Execution Price Gap",
+      "phonetic_ipa": "/ˈslɪp.ɪdʒ/",
+      "part_of_speech": "noun"
+    }
+  ]
+}

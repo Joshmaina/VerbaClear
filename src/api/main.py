@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 
 from src.api.routers.control import router as control_router
 from src.api.routers.export import router as export_router
+from src.api.routers.packs import router as packs_router
 from src.api.routers.session import router as session_router
 from src.api.ws.hub import WebSocketHub
 from src.application.orchestrator import VerbaClearOrchestrator
@@ -70,6 +71,7 @@ app.add_middleware(
 app.include_router(session_router)
 app.include_router(export_router)
 app.include_router(control_router)
+app.include_router(packs_router)
 
 
 @app.get("/stage")

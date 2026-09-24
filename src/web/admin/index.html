@@ -556,6 +556,10 @@
       <span class="metric-chip-label">Session Words</span>
       <span id="metric-words-total" class="metric-chip-value">0</span>
     </div>
+    <div class="metric-chip">
+      <span class="metric-chip-label">Domain Pack</span>
+      <span id="metric-domain-badge" class="metric-chip-value" style="color:var(--accent-cyan); font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">General</span>
+    </div>
   </div>
 
   <!-- Dashboard Grid -->
@@ -640,6 +644,29 @@
       </p>
     </div>
 
+    <!-- Domain Context Pack Selection -->
+    <div class="console-card col-span-6">
+      <div class="card-title-row">
+        <span class="card-title">Domain Context Pack (Glossary Overrides)</span>
+        <span id="pack-active-indicator" style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">GENERAL BASELINE</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="pack-select" class="input-field" style="flex:1; cursor:pointer;">
+            <option value="">General Vocabulary (No Domain Overrides)</option>
+          </select>
+          <button id="btn-activate-pack" class="btn-console" style="width:auto; padding:0 18px; height:38px; background:linear-gradient(135deg, #0284c7, #38bdf8); color:#fff;">
+            Activate Pack
+          </button>
+        </div>
+
+        <div id="pack-description-box" style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; line-height: 1.4;">
+          Select a specialized industry pack to override terms with domain-specific definitions and simplified synonyms in real time.
+        </div>
+      </div>
+    </div>
+
     <!-- Manual Vocabulary Injection Form -->
     <div class="console-card col-span-6">
       <div class="card-title-row">
@@ -663,7 +690,7 @@
     </div>
 
     <!-- Live Vocabulary Audit Stream -->
-    <div class="console-card col-span-6">
+    <div class="console-card col-span-12">
       <div class="card-title-row">
         <span class="card-title">Live Spoken Vocabulary Stream</span>
         <span id="audit-count" style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">0 Words</span>
@@ -693,6 +720,12 @@
       const metricQueueDepth = document.getElementById('metric-queue-depth');
       const metricLatency = document.getElementById('metric-latency');
       const metricWordsTotal = document.getElementById('metric-words-total');
+      const metricDomainBadge = document.getElementById('metric-domain-badge');
+
+      const packSelect = document.getElementById('pack-select');
+      const packActiveIndicator = document.getElementById('pack-active-indicator');
+      const packDescriptionBox = document.getElementById('pack-description-box');
+      const btnActivatePack = document.getElementById('btn-activate-pack');
 
       const vuMeterFill = document.getElementById('vu-meter-fill');
       const vuDbfsText = document.getElementById('vu-dbfs-text');
@@ -721,6 +754,7 @@
 
       let startTime = Date.now();
       let auditItems = [];
+      let availablePacks = [];
 
       function showToast(msg) {
         toast.textContent = msg;
@@ -746,6 +780,13 @@
         metricQueueDepth.textContent = `${data.stageQueueDepth ?? 0} / 10`;
         metricLatency.textContent = `${(data.avgInferenceLatencyMs ?? 0).toFixed(1)} ms`;
         metricWordsTotal.textContent = data.totalSessionWords ?? 0;
+
+        if (data.activePackBadge && metricDomainBadge) {
+          metricDomainBadge.textContent = data.activePackBadge;
+          if (packActiveIndicator) {
+            packActiveIndicator.textContent = data.activePackId ? `${data.activePackBadge.toUpperCase()} ACTIVE` : 'GENERAL BASELINE';
+          }
+        }
 
         // VU meter conversion (-60 dBFS to 0 dBFS -> 0% to 100%)
         const dbfs = data.vuDbfs ?? -60;
@@ -935,6 +976,81 @@
         }
       });
 
+      // Context Packs Management
+      async function loadContextPacks() {
+        try {
+          const resp = await fetch('/api/packs');
+          if (!resp.ok) return;
+          const data = await resp.json();
+          availablePacks = data.packs || [];
+
+          packSelect.innerHTML = '<option value="">General Vocabulary (No Domain Overrides)</option>';
+
+          availablePacks.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.name} (${p.entryCount} terms) [${p.badge}]`;
+            if (p.id === data.activePackId) {
+              opt.selected = true;
+            }
+            packSelect.appendChild(opt);
+          });
+
+          if (data.activePackBadge && metricDomainBadge) {
+            metricDomainBadge.textContent = data.activePackBadge;
+            if (packActiveIndicator) {
+              packActiveIndicator.textContent = data.activePackId ? `${data.activePackBadge.toUpperCase()} ACTIVE` : 'GENERAL BASELINE';
+            }
+          }
+          updatePackDescription();
+        } catch (err) {
+          console.error('Error loading context packs:', err);
+        }
+      }
+
+      function updatePackDescription() {
+        const val = packSelect.value;
+        if (!val) {
+          packDescriptionBox.textContent = 'General Vocabulary Baseline: High-frequency words filtered with NGSL 1.2 and NAWL, standard definitions used.';
+          return;
+        }
+        const selected = availablePacks.find(p => p.id === val);
+        if (selected) {
+          packDescriptionBox.innerHTML = `<strong>${selected.name} (${selected.badge}):</strong> ${selected.description} <em>(${selected.entryCount} curated terms)</em>`;
+        }
+      }
+
+      async function activateSelectedPack() {
+        const packId = packSelect.value || null;
+        try {
+          const resp = await fetch('/api/packs/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ packId: packId })
+          });
+          const res = await resp.json();
+          if (resp.ok) {
+            metricDomainBadge.textContent = res.activePackBadge || 'General';
+            packActiveIndicator.textContent = res.activePackId ? `${res.activePackBadge.toUpperCase()} ACTIVE` : 'GENERAL BASELINE';
+            showToast(`📦 Domain Pack: ${res.activePackBadge}`);
+            updatePackDescription();
+          } else {
+            showToast(`Error: ${res.detail || 'Could not activate pack'}`);
+          }
+        } catch (e) {
+          showToast('Failed to switch domain context pack');
+        }
+      }
+
+      packSelect.addEventListener('change', () => {
+        updatePackDescription();
+        activateSelectedPack();
+      });
+
+      btnActivatePack.addEventListener('click', () => {
+        activateSelectedPack();
+      });
+
       // Initial State Poll
       async function pollInitialState() {
         try {
@@ -948,6 +1064,7 @@
 
       // Initialize
       pollInitialState();
+      loadContextPacks();
       connectTelemetry();
       connectAudienceFeed();
     })();

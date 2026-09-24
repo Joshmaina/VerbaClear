@@ -32,7 +32,7 @@ class LexicalFilterEngine(LexicalFilterPort):
         self.frequency_index = frequency_index or FrequencyIndex()
         self.lexicon_repo = lexicon_repo or SQLiteLexiconRepository()
 
-    def evaluate_sentence(self, text: str) -> List[VocabularyEvaluation]:
+    def evaluate_sentence(self, text: str, active_pack_id: Optional[str] = None) -> List[VocabularyEvaluation]:
         """
         Parses sentence text, filters out common words, proper nouns, and stopwords,
         and returns evaluations for rare or domain-specific vocabulary.
@@ -59,8 +59,8 @@ class LexicalFilterEngine(LexicalFilterPort):
             rank = self.frequency_index.get_rank(token.lemma)
 
             # A word is flagged as rare if it is NOT in common vocabulary (Bloom filter/NGSL)
-            # OR if it exists in our curated advanced lexicon
-            is_in_lexicon = self.lexicon_repo.get_entry(token.lemma) is not None
+            # OR if it exists in our curated advanced lexicon or active context pack
+            is_in_lexicon = self.lexicon_repo.get_entry(token.lemma, active_pack_id=active_pack_id) is not None
 
             is_rare = (not is_common) or is_in_lexicon
 

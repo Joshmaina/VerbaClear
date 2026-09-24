@@ -1,0 +1,89 @@
+{
+  "id": "pack_medical",
+  "name": "Biomedical & Healthcare",
+  "version": "1.0.0",
+  "badge": "Biomedical",
+  "description": "Clinical and pharmaceutical terminology for healthcare symposiums and medical conferences.",
+  "entries": [
+    {
+      "term": "pathogenicity",
+      "abbreviation": null,
+      "domain_definition": "The structural or genetic capability of an infectious biological agent to cause disease in a host organism.",
+      "simplified_synonym": "Disease Potential",
+      "phonetic_ipa": "/ˌpæθ.ə.dʒəˈnɪs.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "etiology",
+      "abbreviation": null,
+      "domain_definition": "The investigation or cause, origin, and development pathway of a medical disease or condition.",
+      "simplified_synonym": "Root Cause",
+      "phonetic_ipa": "/ˌiː.tiˈɒl.ə.dʒi/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "prophylaxis",
+      "abbreviation": null,
+      "domain_definition": "A medical treatment, procedure, or intervention designed to prevent disease rather than cure it.",
+      "simplified_synonym": "Preventive Treatment",
+      "phonetic_ipa": "/ˌprɒf.ɪˈlæk.sɪs/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "pharmacokinetics",
+      "abbreviation": "PK",
+      "domain_definition": "The study of bodily absorption, distribution, metabolism, and excretion (ADME) of drugs over time.",
+      "simplified_synonym": "Drug Processing",
+      "phonetic_ipa": "/ˌfɑː.mə.kəʊ.kɪˈnet.ɪks/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "bioavailability",
+      "abbreviation": null,
+      "domain_definition": "The proportion and rate of an administered drug dosage that enters system-wide circulation unchanged.",
+      "simplified_synonym": "Effective Absorption",
+      "phonetic_ipa": "/ˌbaɪ.əʊ.əˌveɪ.ləˈbɪl.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "idiopathic",
+      "abbreviation": null,
+      "domain_definition": "Arising spontaneously or having an obscure, unknown, or unidentified causal origin.",
+      "simplified_synonym": "Unknown Origin",
+      "phonetic_ipa": "/ˌɪd.i.əˈpæθ.ɪk/",
+      "part_of_speech": "adjective"
+    },
+    {
+      "term": "iatrogenic",
+      "abbreviation": null,
+      "domain_definition": "An illness or adverse effect induced inadvertently by medical examination, procedure, or drug prescription.",
+      "simplified_synonym": "Treatment-Induced",
+      "phonetic_ipa": "/aɪˌæt.rəˈdʒen.ɪk/",
+      "part_of_speech": "adjective"
+    },
+    {
+      "term": "comorbidity",
+      "abbreviation": null,
+      "domain_definition": "The simultaneous presence of two or more chronic medical conditions or diseases in a patient.",
+      "simplified_synonym": "Co-Occurring Illness",
+      "phonetic_ipa": "/ˌkəʊ.mɔːˈbɪd.ə.ti/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "hemostasis",
+      "abbreviation": null,
+      "domain_definition": "The physiological process of arresting blood flow and clotting to stop hemorrhage from damaged vessels.",
+      "simplified_synonym": "Blood Clotting",
+      "phonetic_ipa": "/ˌhiː.məʊˈsteɪ.sɪs/",
+      "part_of_speech": "noun"
+    },
+    {
+      "term": "nosocomial",
+      "abbreviation": null,
+      "domain_definition": "An infection originating or acquired within a hospital or clinical care facility setting.",
+      "simplified_synonym": "Hospital-Acquired",
+      "phonetic_ipa": "/ˌnɒs.əˈkəʊ.mi.əl/",
+      "part_of_speech": "adjective"
+    }
+  ]
+}
