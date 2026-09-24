@@ -13,40 +13,76 @@
     }
 
     :root {
-      --bg-dark: #070b14;
-      --bg-surface: #0f172a;
-      --bg-card: rgba(15, 23, 42, 0.85);
-      --bg-card-border: rgba(56, 189, 248, 0.18);
+      --chassis-bg: #07090e;
+      --chassis-pattern: radial-gradient(circle, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      --panel-bg: #0d121c;
+      --panel-surface: #131a29;
+      --panel-surface-hover: #192236;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-card: rgba(56, 189, 248, 0.16);
+      --border-focus: rgba(56, 189, 248, 0.5);
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
+      --text-dim: #475569;
       --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.25);
       --accent-blue: #0284c7;
-      --accent-green: #22c55e;
-      --accent-yellow: #eab308;
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.25);
+      --accent-amber: #f59e0b;
       --accent-red: #ef4444;
+      --accent-red-glow: rgba(239, 68, 68, 0.3);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+      --radius-xs: 4px;
       --radius-sm: 8px;
-      --radius-md: 14px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.15);
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--chassis-bg);
+      background-image: var(--chassis-pattern);
+      background-size: 28px 28px;
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-sans);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       padding: 16px 24px;
+      gap: 16px;
     }
 
-    /* Top Appliance Navigation */
+    /* Common Icon Utilities */
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    .icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+    }
+
+    /* Top Appliance Header */
     header.console-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 20px;
+      padding: 12px 18px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-panel);
       flex-wrap: wrap;
       gap: 12px;
     }
@@ -58,56 +94,74 @@
     }
 
     .brand-icon {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      background: linear-gradient(135deg, #0369a1, #0284c7);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+      color: #ffffff;
     }
 
     .brand-icon svg {
-      width: 20px;
-      height: 20px;
-      fill: #ffffff;
+      width: 22px;
+      height: 22px;
     }
 
     .brand-text h1 {
-      font-size: 19px;
+      font-size: 17px;
       font-weight: 800;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.04em;
       color: #ffffff;
-      line-height: 1.1;
+      line-height: 1.2;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text h1 .appliance-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
     }
 
     .brand-text span {
       font-size: 11px;
-      font-weight: 700;
-      color: var(--accent-cyan);
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
     }
 
     .header-status-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 700;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .status-dot {
@@ -115,12 +169,27 @@
       height: 8px;
       border-radius: 50%;
       background: var(--accent-red);
-      transition: background 0.3s;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+      transition: background 0.3s, box-shadow 0.3s;
     }
 
     .status-dot.connected {
       background: var(--accent-green);
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
+      animation: pulse-ring 2.5s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    .session-clock {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.05em;
     }
 
     .header-links {
@@ -132,269 +201,471 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-primary);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
       text-decoration: none;
-      transition: background 0.2s;
+      transition: all 0.15s ease;
     }
 
     .btn-nav-link:hover {
-      background: rgba(56, 189, 248, 0.15);
-      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: var(--text-primary);
+    }
+
+    /* Telemetry Bar (Rack Metrics) */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-chip {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: var(--shadow-panel);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-chip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .metric-chip:hover::before {
+      background: var(--accent-cyan);
+    }
+
+    .metric-chip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .metric-chip-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .metric-chip-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .metric-chip-sub {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     /* Grid Layout */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap: 18px;
+      gap: 16px;
       flex: 1;
     }
 
     .col-span-4 { grid-column: span 4; }
-    .col-span-8 { grid-column: span 8; }
     .col-span-6 { grid-column: span 6; }
+    .col-span-8 { grid-column: span 8; }
     .col-span-12 { grid-column: span 12; }
 
     @media (max-width: 1024px) {
-      .col-span-4, .col-span-8, .col-span-6 {
+      .col-span-4, .col-span-6, .col-span-8 {
         grid-column: span 12;
       }
     }
 
     /* Cards */
     .console-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--bg-card-border);
+      background: var(--panel-bg);
+      border: 1px solid var(--border-card);
       border-radius: var(--radius-md);
       padding: 18px 20px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow-panel);
+      position: relative;
     }
 
     .card-title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 10px;
     }
 
     .card-title {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.07em;
       color: #ffffff;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    /* Metric Chips Bar */
-    .metrics-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 12px;
+    .card-title .title-icon {
+      color: var(--accent-cyan);
     }
 
-    .metric-chip {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .metric-chip-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .metric-chip-value {
-      font-size: 20px;
+    .tally-pill {
+      font-size: 10px;
       font-weight: 800;
-      color: #ffffff;
-      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* Hardware VU Meter & Audio Gating */
+    .tally-pill.live {
+      color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .tally-pill.muted {
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .tally-pill.cue {
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    /* Calibrated VU Meter Track & VAD */
     .meter-container {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .meter-label-row {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      align-items: center;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meter-readout {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.02em;
     }
 
     .vu-meter-track {
       width: 100%;
-      height: 24px;
-      background: #0b1120;
+      height: 22px;
+      background: #06090e;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 2px;
       position: relative;
       overflow: hidden;
       display: flex;
     }
 
+    .vu-meter-segments-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: linear-gradient(90deg, transparent calc(100% - 2px), rgba(6, 9, 14, 0.85) calc(100% - 2px));
+      background-size: 10px 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
     .vu-meter-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #22c55e 0%, #22c55e 65%, #eab308 85%, #ef4444 100%);
-      border-radius: 4px;
+      background: linear-gradient(90deg, #10b981 0%, #10b981 65%, #f59e0b 82%, #ef4444 100%);
+      border-radius: 2px;
       transition: width 0.08s ease-out;
+      z-index: 1;
     }
 
     .vu-meter-scale {
       display: flex;
       justify-content: space-between;
+      font-family: var(--font-mono);
       font-size: 9px;
-      color: var(--text-muted);
+      color: var(--text-dim);
       font-weight: 700;
       padding: 0 2px;
     }
 
-    /* VAD Indicator */
     .vad-status-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
     }
 
     .vad-pill {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 800;
       text-transform: uppercase;
+      letter-spacing: 0.06em;
       padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text-muted);
-      transition: all 0.2s;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
     }
 
     .vad-pill.active {
-      background: rgba(34, 197, 94, 0.2);
+      background: rgba(16, 185, 129, 0.16);
       color: var(--accent-green);
-      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
     }
 
-    /* Operator Control Buttons */
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-    }
-
+    /* Broadcast Console Pushbuttons */
     .btn-console {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border: none;
+      letter-spacing: 0.06em;
+      border: 1px solid transparent;
       cursor: pointer;
-      transition: transform 0.15s, opacity 0.15s, filter 0.15s;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-console .btn-icon {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
     }
 
     .btn-console:active {
-      transform: scale(0.97);
+      transform: translateY(1px);
     }
 
-    .btn-blackout {
-      background: linear-gradient(135deg, #b91c1c, #dc2626);
-      color: #ffffff;
-      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-    }
-
-    .btn-dismiss {
-      background: linear-gradient(135deg, #a16207, #ca8a04);
-      color: #ffffff;
-      box-shadow: 0 4px 14px rgba(202, 138, 4, 0.3);
-      border: 1px solid rgba(234, 179, 8, 0.4);
-    }
-
+    /* Mute Switch */
     .btn-mute {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
       color: var(--text-primary);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.12);
+      width: 100%;
+      height: 40px;
+    }
+
+    .btn-mute:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .btn-mute.muted-state {
-      background: linear-gradient(135deg, #c2410c, #ea580c);
+      background: linear-gradient(135deg, #991b1b, #b91c1c);
       color: #ffffff;
-      border-color: rgba(234, 88, 12, 0.5);
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
     }
 
-    /* Live Stage Mini-Preview */
-    .stage-preview-box {
-      width: 100%;
-      height: 120px;
-      background: #030712;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 10px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
+    /* Stage Master Controls */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-blackout {
+      background: linear-gradient(135deg, #7f1d1d, #991b1b);
+      color: #ffffff;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
       position: relative;
       overflow: hidden;
     }
 
-    .preview-tag {
+    .btn-blackout::after {
+      content: '';
       position: absolute;
-      top: 8px;
-      left: 10px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 6px,
+        transparent 6px,
+        transparent 12px
+      );
+      pointer-events: none;
+    }
+
+    .btn-blackout:hover {
+      background: linear-gradient(135deg, #991b1b, #b91c1c);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.45);
+    }
+
+    .btn-dismiss {
+      background: linear-gradient(135deg, #854d0e, #a16207);
+      color: #ffffff;
+      border: 1px solid rgba(234, 179, 8, 0.4);
+      box-shadow: 0 4px 14px rgba(202, 138, 4, 0.25);
+    }
+
+    .btn-dismiss:hover {
+      background: linear-gradient(135deg, #a16207, #ca8a04);
+      box-shadow: 0 0 16px rgba(234, 179, 8, 0.35);
+    }
+
+    /* Broadcast Multiview Confidence Monitor */
+    .stage-preview-monitor {
+      width: 100%;
+      height: 126px;
+      background: #04060a;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .monitor-bezel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 10px;
       font-weight: 700;
       color: var(--text-muted);
-      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .monitor-bezel-header .rec-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--accent-red);
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .monitor-bezel-header .rec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      animation: pulse-ring 1.5s infinite;
+    }
+
+    .stage-preview-viewport {
+      flex: 1;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+    }
+
+    /* Safe title guides */
+    .stage-preview-viewport::before,
+    .stage-preview-viewport::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .stage-preview-viewport::before {
+      top: 6px;
+      left: 6px;
+      border-top: 1px solid;
+      border-left: 1px solid;
+    }
+    .stage-preview-viewport::after {
+      bottom: 6px;
+      right: 6px;
+      border-bottom: 1px solid;
+      border-right: 1px solid;
     }
 
     .preview-card-body {
-      background: rgba(10, 15, 29, 0.95);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      border-radius: 8px;
+      background: rgba(10, 16, 28, 0.94);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-radius: 6px;
       padding: 8px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      transition: opacity 0.2s ease;
     }
 
     .preview-word {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: #ffffff;
+      letter-spacing: -0.01em;
     }
 
     .preview-synonyms {
@@ -403,7 +674,161 @@
       color: var(--accent-cyan);
     }
 
-    /* Manual Card Injection Form */
+    /* Domain Context Pack Form Controls */
+    .pack-controls-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-primary);
+      outline: none;
+      font-family: var(--font-sans);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-activate {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      height: 38px;
+      padding: 0 14px;
+      white-space: nowrap;
+    }
+
+    .btn-activate:hover {
+      background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-delete-pack {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: var(--accent-red);
+      padding: 0 12px;
+      height: 38px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .btn-delete-pack:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--accent-red);
+    }
+
+    .pack-description-panel {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+      padding: 10px 12px;
+      border-radius: 6px;
+      line-height: 1.45;
+    }
+
+    .pack-description-panel strong {
+      color: #ffffff;
+    }
+
+    .pack-description-panel em {
+      color: var(--accent-cyan);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(56, 189, 248, 0.1);
+      border-color: rgba(56, 189, 248, 0.3);
+      color: var(--text-primary);
+    }
+
+    /* Custom Pack Drawer */
+    .custom-pack-drawer {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px;
+      background: rgba(6, 9, 14, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-sm);
+      margin-top: 4px;
+    }
+
+    .custom-pack-drawer.open {
+      display: flex;
+    }
+
+    .tab-btn-row {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Manual Vocabulary Injection Form */
     .injection-form {
       display: flex;
       flex-direction: column;
@@ -416,103 +841,20 @@
       gap: 10px;
     }
 
-    .input-field {
-      width: 100%;
-      height: 38px;
-      padding: 0 12px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--text-primary);
-      outline: none;
-    }
-
-    .input-field:focus {
-      border-color: var(--accent-cyan);
-    }
-
     .btn-inject {
       background: linear-gradient(135deg, #0284c7, #0369a1);
       color: #ffffff;
       border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-    }
-
-    /* Custom Pack Drawer */
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-primary);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover {
-      background: rgba(56, 189, 248, 0.15);
-      border-color: rgba(56, 189, 248, 0.3);
-    }
-    .btn-delete-pack {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #ef4444;
-      padding: 0 12px;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
       height: 38px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-    .btn-delete-pack:hover {
-      background: rgba(239, 68, 68, 0.35);
-    }
-    .custom-pack-drawer {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 10px;
-      margin-top: 4px;
-    }
-    .custom-pack-drawer.open {
-      display: flex;
-    }
-    .tab-btn-row {
-      display: flex;
-      gap: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 6px;
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
-    .tab-btn.active {
-      color: var(--accent-cyan);
-      background: rgba(56, 189, 248, 0.12);
     }
 
-    /* Audit Log Stream */
+    .btn-inject:hover {
+      background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    /* Live Vocabulary Audit Stream */
     .audit-log-list {
       max-height: 240px;
       overflow-y: auto;
@@ -522,55 +864,100 @@
       padding-right: 4px;
     }
 
+    .audit-log-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .audit-log-list::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    .audit-log-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
     .audit-log-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 7px 12px;
       background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 6px;
       font-size: 12px;
+      transition: background 0.15s ease;
     }
 
-    .audit-time {
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
+    .audit-log-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .audit-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .audit-word {
       font-weight: 800;
       color: #ffffff;
+      letter-spacing: -0.01em;
     }
 
     .audit-syn {
       color: var(--accent-cyan);
       font-weight: 600;
+      font-size: 11px;
     }
 
-    /* Toast */
+    .audit-time {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Broadcast Toast HUD */
     #toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(13, 18, 28, 0.95);
       border: 1px solid var(--accent-cyan);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(56, 189, 248, 0.2);
       color: #ffffff;
       padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
       opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.25s;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
-      z-index: 100;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
     }
 
     #toast.show {
       opacity: 1;
       transform: translateY(0);
     }
+
+    #toast .toast-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    #toast .toast-icon.success { color: var(--accent-green); }
+    #toast .toast-icon.warn { color: var(--accent-amber); }
+    #toast .toast-icon.alert { color: var(--accent-red); }
+    #toast .toast-icon.info { color: var(--accent-cyan); }
   </style>
 </head>
 <body>
@@ -579,12 +966,21 @@
   <header class="console-header">
     <div class="brand-group">
       <div class="brand-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-6h2v6zm0-8h-2V7h2v1z"/>
+        <!-- Audio Spectrum Waveform Brand Crest -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h2" />
+          <path d="M6 7v10" />
+          <path d="M10 3v18" />
+          <path d="M14 8v8" />
+          <path d="M18 5v14" />
+          <path d="M22 12h-2" />
         </svg>
       </div>
       <div class="brand-text">
-        <h1>VerbaClear AV Control Room</h1>
+        <h1>
+          VerbaClear
+          <span class="appliance-badge">AV CONTROL ROOM</span>
+        </h1>
         <span>Live Production Appliance Console</span>
       </div>
     </div>
@@ -596,69 +992,180 @@
       </div>
 
       <div class="status-badge">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
         <span>Uptime:</span>
-        <strong id="session-uptime" style="color:#ffffff;">00:00:00</strong>
+        <strong id="session-uptime" class="session-clock">00:00:00</strong>
       </div>
 
       <div class="header-links">
-        <a href="/stage" target="_blank" class="btn-nav-link">Stage Screen ↗</a>
-        <a href="/companion" target="_blank" class="btn-nav-link">Mobile Portal ↗</a>
+        <a href="/stage" target="_blank" class="btn-nav-link" title="Open Stage Display Screen">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </span>
+          <span>Stage Screen</span>
+          <span class="icon" style="width:12px; height:12px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </span>
+        </a>
+
+        <a href="/companion" target="_blank" class="btn-nav-link" title="Open Attendee Mobile Portal">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </span>
+          <span>Mobile Portal</span>
+          <span class="icon" style="width:12px; height:12px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </span>
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- Metrics Bar -->
-  <div class="metrics-bar" style="margin-bottom: 20px;">
+  <!-- Metrics Bar (Telemetry Ribbon) -->
+  <div class="metrics-bar">
     <div class="metric-chip">
-      <span class="metric-chip-label">Stage Screens</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">Stage Displays</span>
+        <span class="icon" style="color:var(--accent-cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </span>
+      </div>
       <span id="metric-stage-count" class="metric-chip-value">0</span>
+      <span class="metric-chip-sub">Active Monitors</span>
     </div>
+
     <div class="metric-chip">
-      <span class="metric-chip-label">Mobile Attendees</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">Mobile Attendees</span>
+        <span class="icon" style="color:var(--accent-green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+        </span>
+      </div>
       <span id="metric-audience-count" class="metric-chip-value">0</span>
+      <span class="metric-chip-sub">Connected Devices</span>
     </div>
+
     <div class="metric-chip">
-      <span class="metric-chip-label">Queue Depth</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">Queue Depth</span>
+        <span class="icon" style="color:var(--accent-amber);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+        </span>
+      </div>
       <span id="metric-queue-depth" class="metric-chip-value">0 / 10</span>
+      <span class="metric-chip-sub">Buffer Staging</span>
     </div>
+
     <div class="metric-chip">
-      <span class="metric-chip-label">ASR Latency</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">ASR Latency</span>
+        <span class="icon" style="color:var(--accent-cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 15 15"/>
+          </svg>
+        </span>
+      </div>
       <span id="metric-latency" class="metric-chip-value">0.0 ms</span>
+      <span class="metric-chip-sub">Inference Speed</span>
     </div>
+
     <div class="metric-chip">
-      <span class="metric-chip-label">Session Words</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">Session Words</span>
+        <span class="icon" style="color:var(--accent-green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </span>
+      </div>
       <span id="metric-words-total" class="metric-chip-value">0</span>
+      <span class="metric-chip-sub">Processed Vocabulary</span>
     </div>
+
     <div class="metric-chip">
-      <span class="metric-chip-label">Domain Pack</span>
-      <span id="metric-domain-badge" class="metric-chip-value" style="color:var(--accent-cyan); font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">General</span>
+      <div class="metric-chip-header">
+        <span class="metric-chip-label">Domain Pack</span>
+        <span class="icon" style="color:var(--accent-cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l8 4.5v6.5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6.5L12 2z"/>
+          </svg>
+        </span>
+      </div>
+      <span id="metric-domain-badge" class="metric-chip-value" style="color:var(--accent-cyan); font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">General</span>
+      <span class="metric-chip-sub">Active Glossary</span>
     </div>
   </div>
 
   <!-- Dashboard Grid -->
   <div class="dashboard-grid">
 
-    <!-- Audio Hardware & VAD Telemetry -->
+    <!-- Hardware Audio & VAD Telemetry (Col 6) -->
     <div class="console-card col-span-6">
       <div class="card-title-row">
-        <span class="card-title">Hardware Audio & VAD Gating</span>
-        <span id="audio-mode-pill" style="font-size:11px; font-weight:700; color:var(--accent-green);">AUDIO LIVE</span>
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </span>
+          Hardware Audio & VAD Gating
+        </span>
+        <span id="audio-mode-pill" class="tally-pill live">AUDIO LIVE</span>
       </div>
 
       <!-- Horizontal VU Meter -->
       <div class="meter-container">
         <div class="meter-label-row">
           <span>Input Level (VU Meter)</span>
-          <span id="vu-dbfs-text">-60.0 dBFS</span>
+          <span id="vu-dbfs-text" class="meter-readout">-60.0 dBFS</span>
         </div>
         <div class="vu-meter-track">
+          <div class="vu-meter-segments-overlay"></div>
           <div id="vu-meter-fill" class="vu-meter-fill"></div>
         </div>
         <div class="vu-meter-scale">
           <span>-60 dB</span>
           <span>-36 dB</span>
           <span>-24 dB</span>
+          <span>-18 dB</span>
           <span>-12 dB</span>
+          <span>-6 dB</span>
           <span>-3 dB</span>
           <span>0 dB</span>
         </div>
@@ -668,90 +1175,168 @@
       <div class="meter-container">
         <div class="meter-label-row">
           <span>Silero VAD Speech Probability</span>
-          <span id="vad-prob-text">0.00</span>
+          <span id="vad-prob-text" class="meter-readout">0.00</span>
         </div>
         <div class="vu-meter-track" style="height: 12px;">
-          <div id="vad-meter-fill" style="height:100%; width:0%; background:var(--accent-cyan); border-radius:3px; transition:width 0.1s ease-out;"></div>
+          <div id="vad-meter-fill" style="height:100%; width:0%; background:var(--accent-cyan); border-radius:2px; transition:width 0.1s ease-out;"></div>
         </div>
       </div>
 
       <div class="vad-status-row">
-        <span>VAD Decision State:</span>
+        <span style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">VAD Gate State:</span>
         <span id="vad-status-pill" class="vad-pill">Silence / Noise Gate</span>
       </div>
 
-      <button id="btn-toggle-mute" class="btn-console btn-mute" style="margin-top: 6px;">
-        🎙️ Mute Microphone
+      <button id="btn-toggle-mute" class="btn-console btn-mute">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <span>Mute Audio Bus</span>
       </button>
     </div>
 
-    <!-- Stage Master Controls -->
+    <!-- Stage Master Controls & Confidence Monitor (Col 6) -->
     <div class="console-card col-span-6">
       <div class="card-title-row">
-        <span class="card-title">Stage Display Master Controls</span>
-        <span style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">OBS / NDI OVERLAY</span>
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </span>
+          Stage Display Master Controls
+        </span>
+        <span class="tally-pill cue">OBS / NDI OVERLAY</span>
       </div>
 
-      <!-- Live Stage Mini-Preview -->
-      <div class="stage-preview-box">
-        <span class="preview-tag">Stage Live Feed Preview</span>
-        <div id="preview-card" class="preview-card-body" style="opacity: 0.4;">
-          <span id="preview-word" class="preview-word">No Active Card</span>
-          <span id="preview-synonyms" class="preview-synonyms">—</span>
+      <!-- Live Stage Multiview Confidence Monitor -->
+      <div class="stage-preview-monitor">
+        <div class="monitor-bezel-header">
+          <span>PGM 1 : CONFIDENCE MONITOR</span>
+          <span class="rec-indicator">
+            <span class="rec-dot"></span>
+            ON-AIR
+          </span>
+        </div>
+        <div class="stage-preview-viewport">
+          <div id="preview-card" class="preview-card-body" style="opacity: 0.4;">
+            <span id="preview-word" class="preview-word">No Active Card</span>
+            <span id="preview-synonyms" class="preview-synonyms">—</span>
+          </div>
         </div>
       </div>
 
-      <!-- Emergency Buttons -->
+      <!-- Emergency Master Buttons -->
       <div class="actions-grid">
         <button id="btn-stage-blackout" class="btn-console btn-blackout">
-          🚨 Stage Blackout
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+            <line x1="12" y1="2" x2="12" y2="12"/>
+          </svg>
+          <span>Stage Blackout</span>
         </button>
+
         <button id="btn-stage-dismiss" class="btn-console btn-dismiss">
-          ⏭ Dismiss Current
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/>
+            <line x1="19" y1="5" x2="19" y2="19"/>
+          </svg>
+          <span>Dismiss Current</span>
         </button>
       </div>
 
-      <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+      <p style="font-size: 11px; color: var(--text-muted); line-height: 1.45;">
         <strong>Stage Blackout:</strong> Instantly clears the stage lower-third card and purges all queued vocabulary cards.<br>
         <strong>Dismiss Current:</strong> Skips the active card immediately, popping the next item in the queue.
       </p>
     </div>
 
-    <!-- Domain Context Pack Selection -->
+    <!-- Domain Context Pack Selection & Custom Packs (Col 6) -->
     <div class="console-card col-span-6">
       <div class="card-title-row">
-        <span class="card-title">Domain Context Pack (Glossary Overrides)</span>
-        <span id="pack-active-indicator" style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">GENERAL BASELINE</span>
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </span>
+          Domain Context Pack (Glossary Overrides)
+        </span>
+        <span id="pack-active-indicator" class="tally-pill cue">GENERAL BASELINE</span>
       </div>
 
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div class="pack-controls-row">
           <select id="pack-select" class="input-field" style="flex:1; cursor:pointer;">
             <option value="">General Vocabulary (No Domain Overrides)</option>
           </select>
-          <button id="btn-activate-pack" class="btn-console" style="width:auto; padding:0 16px; height:38px; background:linear-gradient(135deg, #0284c7, #38bdf8); color:#fff;">
-            Activate Pack
+
+          <button id="btn-activate-pack" class="btn-console btn-activate">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Activate Pack</span>
           </button>
+
           <button id="btn-delete-pack" class="btn-delete-pack" title="Delete custom pack">
-            🗑️
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
           </button>
         </div>
 
-        <div id="pack-description-box" style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; line-height: 1.4;">
+        <div id="pack-description-box" class="pack-description-panel">
           Select a specialized industry pack to override terms with domain-specific definitions and simplified synonyms in real time.
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <button id="btn-toggle-custom-pack" class="btn-secondary" type="button">
-            <span>➕ Upload or Create Custom Pack</span>
+            <span class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                <line x1="12" y1="11" x2="12" y2="17"/>
+                <line x1="9" y1="14" x2="15" y2="14"/>
+              </svg>
+            </span>
+            <span>Upload or Create Custom Pack</span>
           </button>
         </div>
 
         <!-- Custom Pack Creator & Uploader Drawer -->
         <div id="custom-pack-drawer" class="custom-pack-drawer">
           <div class="tab-btn-row">
-            <button id="tab-file-btn" class="tab-btn active" type="button">📁 File Upload (.JSON / .CSV)</button>
-            <button id="tab-text-btn" class="tab-btn" type="button">✍️ Quick Paste (CSV Text)</button>
+            <button id="tab-file-btn" class="tab-btn active" type="button">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <polyline points="9 15 12 12 15 15"/>
+                </svg>
+              </span>
+              <span>File Upload (.JSON / .CSV)</span>
+            </button>
+
+            <button id="tab-text-btn" class="tab-btn" type="button">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  <line x1="9" y1="12" x2="15" y2="12"/>
+                  <line x1="9" y1="16" x2="13" y2="16"/>
+                </svg>
+              </span>
+              <span>Quick Paste (CSV Text)</span>
+            </button>
           </div>
 
           <!-- Tab 1: File Upload -->
@@ -761,8 +1346,13 @@
               <input type="text" id="upload-pack-name" class="input-field" placeholder="Pack Name (Optional)">
               <input type="text" id="upload-pack-badge" class="input-field" placeholder="Badge (e.g. Quantum)">
             </div>
-            <button id="btn-submit-upload" class="btn-console btn-inject" type="button" style="height:36px; padding:0 12px; font-size:12px;">
-              🚀 Upload & Seed Pack
+            <button id="btn-submit-upload" class="btn-console btn-inject" type="button" style="height:36px; padding:0 14px; font-size:11px;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Upload & Seed Pack</span>
             </button>
           </div>
 
@@ -772,9 +1362,12 @@
               <input type="text" id="paste-pack-name" class="input-field" placeholder="Pack Name (e.g. Quantum Crypto)">
               <input type="text" id="paste-pack-badge" class="input-field" placeholder="Badge (e.g. Quantum)">
             </div>
-            <textarea id="paste-pack-csv" class="input-field" style="height:80px; padding:8px 12px; resize:vertical; font-family:monospace; font-size:11px;" placeholder="Term, Simplified Synonym, Domain Definition&#10;qubit, Quantum Bit, Basic unit of quantum information&#10;superposition, Dual State, Physical ability to exist in multiple states"></textarea>
-            <button id="btn-submit-paste" class="btn-console btn-inject" type="button" style="height:36px; padding:0 12px; font-size:12px;">
-              ⚡ Create & Activate Pack
+            <textarea id="paste-pack-csv" class="input-field" style="height:84px; padding:8px 12px; resize:vertical; font-family:var(--font-mono); font-size:11px;" placeholder="Term, Simplified Synonym, Domain Definition&#10;qubit, Quantum Bit, Basic unit of quantum information&#10;superposition, Dual State, Physical ability to exist in multiple states"></textarea>
+            <button id="btn-submit-paste" class="btn-console btn-inject" type="button" style="height:36px; padding:0 14px; font-size:11px;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <span>Create & Activate Pack</span>
             </button>
           </div>
         </div>
@@ -782,11 +1375,18 @@
       </div>
     </div>
 
-    <!-- Manual Vocabulary Injection Form -->
+    <!-- Manual Vocabulary Injection Form (Col 6) -->
     <div class="console-card col-span-6">
       <div class="card-title-row">
-        <span class="card-title">Manual Vocabulary Injection</span>
-        <span style="font-size: 11px; color: var(--text-muted);">Operator Override</span>
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </span>
+          Manual Vocabulary Injection
+        </span>
+        <span class="tally-pill cue">Operator Override</span>
       </div>
 
       <form id="injection-form" class="injection-form">
@@ -798,21 +1398,32 @@
         <div class="form-row">
           <input type="text" id="inject-phonetic" class="input-field" placeholder="Phonetic IPA (optional)">
           <button type="submit" class="btn-console btn-inject">
-            ⚡ Inject to Stage & Mobile
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            <span>Inject to Stage & Mobile</span>
           </button>
         </div>
       </form>
     </div>
 
-    <!-- Live Vocabulary Audit Stream -->
+    <!-- Live Vocabulary Audit Stream (Col 12) -->
     <div class="console-card col-span-12">
       <div class="card-title-row">
-        <span class="card-title">Live Spoken Vocabulary Stream</span>
-        <span id="audit-count" style="font-size: 11px; color: var(--accent-cyan); font-weight:700;">0 Words</span>
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </span>
+          Live Spoken Vocabulary Stream
+        </span>
+        <span id="audit-count" class="tally-pill cue">0 Words</span>
       </div>
 
       <div id="audit-list" class="audit-log-list">
-        <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px;">
+        <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 24px;">
           Listening for spoken vocabulary from presenter...
         </div>
       </div>
@@ -820,8 +1431,11 @@
 
   </div>
 
-  <!-- Toast Notification Feedback -->
-  <div id="toast">Action Executed</div>
+  <!-- Toast Notification Feedback HUD -->
+  <div id="toast">
+    <span class="toast-icon"></span>
+    <span class="toast-text">Action Executed</span>
+  </div>
 
   <script>
     (function() {
@@ -841,6 +1455,7 @@
       const packActiveIndicator = document.getElementById('pack-active-indicator');
       const packDescriptionBox = document.getElementById('pack-description-box');
       const btnActivatePack = document.getElementById('btn-activate-pack');
+      const btnDeletePack = document.getElementById('btn-delete-pack');
 
       const vuMeterFill = document.getElementById('vu-meter-fill');
       const vuDbfsText = document.getElementById('vu-dbfs-text');
@@ -871,13 +1486,28 @@
       let auditItems = [];
       let availablePacks = [];
 
-      function showToast(msg) {
-        toast.textContent = msg;
+      // SVG Icon Templates for Dynamic Elements
+      const ICONS = {
+        micLive: '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+        micMuted: '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V5a3 3 0 0 0-5.94-.6"/><path d="M19 10v2a7 7 0 0 1-.58 2.81"/><path d="M5 10v2a7 7 0 0 0 10.93 5.82"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+        upload: '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+        create: '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        toastInfo: '<svg class="toast-icon info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+        toastSuccess: '<svg class="toast-icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        toastWarn: '<svg class="toast-icon warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      };
+
+      function showToast(msg, type) {
+        let iconHtml = ICONS.toastInfo;
+        if (type === 'success') iconHtml = ICONS.toastSuccess;
+        else if (type === 'warn' || type === 'alert') iconHtml = ICONS.toastWarn;
+
+        toast.innerHTML = `${iconHtml}<span class="toast-text">${msg}</span>`;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2500);
+        setTimeout(() => toast.classList.remove('show'), 2600);
       }
 
-      // Uptime Clock
+      // Session Uptime Clock
       setInterval(() => {
         const sec = Math.floor((Date.now() - startTime) / 1000);
         const h = String(Math.floor(sec / 3600)).padStart(2, '0');
@@ -925,13 +1555,13 @@
         // Mute state
         if (data.isMuted) {
           audioModePill.textContent = 'AUDIO MUTED';
-          audioModePill.style.color = 'var(--accent-red)';
-          btnToggleMute.textContent = '🔇 Unmute Microphone';
+          audioModePill.className = 'tally-pill muted';
+          btnToggleMute.innerHTML = `${ICONS.micMuted}<span>Unmute Audio Bus</span>`;
           btnToggleMute.className = 'btn-console btn-mute muted-state';
         } else {
           audioModePill.textContent = 'AUDIO LIVE';
-          audioModePill.style.color = 'var(--accent-green)';
-          btnToggleMute.textContent = '🎙️ Mute Microphone';
+          audioModePill.className = 'tally-pill live';
+          btnToggleMute.innerHTML = `${ICONS.micLive}<span>Mute Audio Bus</span>`;
           btnToggleMute.className = 'btn-console btn-mute';
         }
       }
@@ -947,8 +1577,10 @@
         const row = document.createElement('div');
         row.className = 'audit-log-item';
         row.innerHTML = `
-          <span class="audit-word">${word}</span>
-          <span class="audit-syn">${Array.isArray(synonyms) ? synonyms.join(', ') : synonyms}</span>
+          <div class="audit-item-left">
+            <span class="audit-word">${word}</span>
+            <span class="audit-syn">${Array.isArray(synonyms) ? synonyms.join(' • ') : synonyms}</span>
+          </div>
           <span class="audit-time">${timeStr || 'Just now'}</span>
         `;
         auditList.prepend(row);
@@ -999,7 +1631,7 @@
         }
       }
 
-      // Also connect to /ws/audience to capture audit words live
+      // Connect to /ws/audience to capture audit words live
       let audWs = null;
       function connectAudienceFeed() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -1028,9 +1660,9 @@
           previewCard.style.opacity = '0.3';
           previewWord.textContent = 'Screen Blanked';
           previewSynonyms.textContent = 'Blackout Active';
-          showToast(`🚨 Stage Blackout: ${res.droppedQueuedCards || 0} queued cards cleared`);
+          showToast(`Stage Blackout: ${res.droppedQueuedCards || 0} queued cards cleared`, 'warn');
         } catch (e) {
-          showToast('Failed to execute blackout');
+          showToast('Failed to execute blackout', 'alert');
         }
       });
 
@@ -1040,9 +1672,9 @@
           previewCard.style.opacity = '0.4';
           previewWord.textContent = 'Card Dismissed';
           previewSynonyms.textContent = 'Popping Next';
-          showToast('⏭ Active stage card dismissed');
+          showToast('Active stage card dismissed', 'info');
         } catch (e) {
-          showToast('Failed to dismiss card');
+          showToast('Failed to dismiss card', 'alert');
         }
       });
 
@@ -1050,9 +1682,9 @@
         try {
           const resp = await fetch('/api/control/audio/toggle', { method: 'POST' });
           const res = await resp.json();
-          showToast(res.isMuted ? '🔇 Microphone Muted' : '🎙️ Microphone Live');
+          showToast(res.isMuted ? 'Microphone Muted' : 'Microphone Live', res.isMuted ? 'warn' : 'success');
         } catch (e) {
-          showToast('Failed to toggle audio');
+          showToast('Failed to toggle audio', 'alert');
         }
       });
 
@@ -1079,7 +1711,7 @@
           });
 
           if (resp.ok) {
-            showToast(`⚡ Injected "${word}" to stage & audience!`);
+            showToast(`Injected "${word}" to stage & audience`, 'success');
             addAuditWord(word, synList, new Date().toLocaleTimeString());
             injectWord.value = '';
             injectSynonyms.value = '';
@@ -1087,11 +1719,10 @@
             injectPhonetic.value = '';
           }
         } catch (err) {
-          showToast('Failed to inject card');
+          showToast('Failed to inject card', 'alert');
         }
       });
 
-      const btnDeletePack = document.getElementById('btn-delete-pack');
       const btnToggleCustomPack = document.getElementById('btn-toggle-custom-pack');
       const customPackDrawer = document.getElementById('custom-pack-drawer');
       const tabFileBtn = document.getElementById('tab-file-btn');
@@ -1169,13 +1800,13 @@
           if (resp.ok) {
             metricDomainBadge.textContent = res.activePackBadge || 'General';
             packActiveIndicator.textContent = res.activePackId ? `${res.activePackBadge.toUpperCase()} ACTIVE` : 'GENERAL BASELINE';
-            showToast(`📦 Domain Pack: ${res.activePackBadge}`);
+            showToast(`Domain Pack: ${res.activePackBadge}`, 'info');
             updatePackDescription();
           } else {
-            showToast(`Error: ${res.detail || 'Could not activate pack'}`);
+            showToast(`Error: ${res.detail || 'Could not activate pack'}`, 'alert');
           }
         } catch (e) {
-          showToast('Failed to switch domain context pack');
+          showToast('Failed to switch domain context pack', 'alert');
         }
       }
 
@@ -1211,7 +1842,7 @@
       // File Upload Handler
       btnSubmitUpload.addEventListener('click', async () => {
         if (!packFileInput.files || packFileInput.files.length === 0) {
-          showToast('Please select a .json or .csv pack file first');
+          showToast('Please select a .json or .csv pack file first', 'warn');
           return;
         }
         const file = packFileInput.files[0];
@@ -1221,7 +1852,7 @@
           const content = e.target.result;
           try {
             btnSubmitUpload.disabled = true;
-            btnSubmitUpload.textContent = 'Uploading...';
+            btnSubmitUpload.innerHTML = '<span>Uploading...</span>';
             const resp = await fetch('/api/packs/upload', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1234,7 +1865,7 @@
             });
             const res = await resp.json();
             if (resp.ok) {
-              showToast(`🚀 Pack "${res.pack.name}" seeded successfully!`);
+              showToast(`Pack "${res.pack.name}" seeded successfully`, 'success');
               await loadContextPacks();
               packSelect.value = res.pack.id;
               await activateSelectedPack();
@@ -1243,13 +1874,13 @@
               uploadPackName.value = '';
               uploadPackBadge.value = '';
             } else {
-              showToast(`Upload failed: ${res.detail || 'Invalid pack'}`);
+              showToast(`Upload failed: ${res.detail || 'Invalid pack'}`, 'alert');
             }
           } catch (err) {
-            showToast('Error uploading pack file');
+            showToast('Error uploading pack file', 'alert');
           } finally {
             btnSubmitUpload.disabled = false;
-            btnSubmitUpload.textContent = '🚀 Upload & Seed Pack';
+            btnSubmitUpload.innerHTML = `${ICONS.upload}<span>Upload & Seed Pack</span>`;
           }
         };
         reader.readAsText(file);
@@ -1262,13 +1893,13 @@
         const csv = pastePackCsv.value.trim();
 
         if (!name || !badge || !csv) {
-          showToast('Please enter Pack Name, Badge, and CSV rows');
+          showToast('Please enter Pack Name, Badge, and CSV rows', 'warn');
           return;
         }
 
         try {
           btnSubmitPaste.disabled = true;
-          btnSubmitPaste.textContent = 'Creating...';
+          btnSubmitPaste.innerHTML = '<span>Creating...</span>';
           const resp = await fetch('/api/packs/upload', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1281,7 +1912,7 @@
           });
           const res = await resp.json();
           if (resp.ok) {
-            showToast(`⚡ Custom Pack "${name}" created!`);
+            showToast(`Custom Pack "${name}" created`, 'success');
             await loadContextPacks();
             packSelect.value = res.pack.id;
             await activateSelectedPack();
@@ -1290,13 +1921,13 @@
             pastePackBadge.value = '';
             pastePackCsv.value = '';
           } else {
-            showToast(`Creation failed: ${res.detail || 'Could not parse CSV'}`);
+            showToast(`Creation failed: ${res.detail || 'Could not parse CSV'}`, 'alert');
           }
         } catch (err) {
-          showToast('Error creating pack from text');
+          showToast('Error creating pack from text', 'alert');
         } finally {
           btnSubmitPaste.disabled = false;
-          btnSubmitPaste.textContent = '⚡ Create & Activate Pack';
+          btnSubmitPaste.innerHTML = `${ICONS.create}<span>Create & Activate Pack</span>`;
         }
       });
 
@@ -1315,13 +1946,13 @@
           const resp = await fetch(`/api/packs/${val}`, { method: 'DELETE' });
           const res = await resp.json();
           if (resp.ok) {
-            showToast(`🗑️ Deleted pack: ${selected.name}`);
+            showToast(`Deleted pack: ${selected.name}`, 'info');
             await loadContextPacks();
           } else {
-            showToast(`Delete failed: ${res.detail || 'Cannot delete pack'}`);
+            showToast(`Delete failed: ${res.detail || 'Cannot delete pack'}`, 'alert');
           }
         } catch (e) {
-          showToast('Failed to delete pack');
+          showToast('Failed to delete pack', 'alert');
         }
       });
 
