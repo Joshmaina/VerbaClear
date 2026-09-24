@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#07090e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>VerbaClear Attendee Companion</title>
@@ -17,10 +17,10 @@
     }
 
     :root {
-      --bg-dark: #070b14;
-      --bg-surface: #0f172a;
-      --bg-card: rgba(15, 23, 42, 0.85);
-      --bg-card-border: rgba(56, 189, 248, 0.16);
+      --bg-dark: #07090e;
+      --bg-surface: #0e1422;
+      --bg-card: rgba(14, 20, 34, 0.94);
+      --bg-card-border: rgba(56, 189, 248, 0.18);
       --bg-pill: rgba(56, 189, 248, 0.12);
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
@@ -28,8 +28,12 @@
       --accent-cyan: #38bdf8;
       --accent-blue: #0284c7;
       --accent-gold: #f59e0b;
-      --accent-green: #22c55e;
+      --accent-green: #10b981;
       --accent-red: #ef4444;
+      --font-humanist: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      --font-editorial: "Charter", "Bitstream Charter", "Sitka Text", "Cambria", Georgia, serif;
+      --font-phonetic: "Charis SIL", "Doulos SIL", "Gentium Plus", "Lucida Sans Unicode", "DejaVu Sans", "Segoe UI", sans-serif;
+      --font-telemetry: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -40,7 +44,9 @@
       min-height: 100vh;
       background-color: var(--bg-dark);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-humanist);
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+      text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       display: flex;
@@ -64,7 +70,7 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(7, 11, 20, 0.9);
+      background: rgba(7, 9, 14, 0.92);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--bg-card-border);
@@ -85,20 +91,21 @@
     }
 
     .brand-logo {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 10px;
       background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+      color: #ffffff;
     }
 
     .brand-logo svg {
-      width: 18px;
-      height: 18px;
-      fill: #ffffff;
+      width: 20px;
+      height: 20px;
     }
 
     .brand-title-wrap {
@@ -115,11 +122,11 @@
     }
 
     .brand-subtitle {
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 700;
       color: var(--accent-cyan);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
     /* Connection & Stats Badges */
@@ -132,14 +139,16 @@
     .status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       font-size: 11px;
-      font-weight: 600;
-      padding: 4px 9px;
+      font-weight: 700;
+      padding: 4px 10px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .status-dot {
@@ -152,34 +161,36 @@
 
     .status-dot.connected {
       background-color: var(--accent-green);
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
     }
 
     .btn-export-trigger {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       padding: 5px 12px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      color: #ffffff;
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-cyan);
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
-      transition: transform 0.15s, opacity 0.15s;
+      transition: all 0.2s ease;
     }
 
-    .btn-export-trigger:active {
-      transform: scale(0.96);
+    .btn-export-trigger:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--accent-cyan);
     }
 
-    /* Search & Segmented Filter */
+    /* Search & Tabs Controls */
     .controls-row {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .search-input-wrap {
@@ -187,32 +198,38 @@
       width: 100%;
     }
 
+    .search-input {
+      width: 100%;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 0 38px 0 38px;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-family: var(--font-humanist);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
     .search-icon {
       position: absolute;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      width: 15px;
-      height: 15px;
+      width: 16px;
+      height: 16px;
       fill: var(--text-muted);
       pointer-events: none;
-    }
-
-    .search-input {
-      width: 100%;
-      height: 36px;
-      padding: 0 34px 0 34px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      font-size: 14px;
-      color: var(--text-primary);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent-cyan);
     }
 
     .search-clear {
@@ -223,103 +240,91 @@
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 14px;
+      font-size: 16px;
       cursor: pointer;
+      padding: 4px;
       display: none;
     }
 
     .tabs-group {
       display: flex;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.25);
       padding: 3px;
-      gap: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .tab-btn {
       flex: 1;
+      height: 34px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: all 0.2s ease;
+      font-family: var(--font-humanist);
     }
 
     .tab-btn.active {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-cyan);
-      font-weight: 700;
+      background: rgba(56, 189, 248, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     .tab-badge {
-      font-size: 11px;
+      font-size: 10px;
+      font-weight: 800;
       padding: 1px 6px;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      font-family: var(--font-telemetry);
     }
 
-    .tab-btn.active .tab-badge {
-      background: rgba(56, 189, 248, 0.25);
-      color: #ffffff;
-    }
-
-    /* Feed Container */
+    /* Vocabulary Feed & Cards */
     #feed-list {
-      padding: 16px 18px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
 
-    /* Vocabulary Card */
     .vocab-card {
       background: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--bg-card-border);
       border-radius: var(--radius-md);
       padding: 18px 20px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
       gap: 12px;
-      animation: cardSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    @keyframes cardSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-16px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1.0);
-      }
+    .vocab-card:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.15);
     }
 
     .vocab-card.bookmarked-card {
       border-color: rgba(245, 158, 11, 0.4);
-      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.12);
     }
 
-    /* Card Top Bar */
     .card-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
 
     .word-header-group {
@@ -330,44 +335,90 @@
 
     .word-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 8px;
       flex-wrap: wrap;
     }
 
     .word-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+      line-height: 1.15;
     }
 
     .pos-pill {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.06em;
       padding: 2px 7px;
       border-radius: 6px;
       background: rgba(56, 189, 248, 0.14);
       color: var(--accent-cyan);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.28);
     }
 
     .domain-pill {
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       padding: 2px 7px;
       border-radius: 6px;
       background: rgba(148, 163, 184, 0.12);
       color: var(--text-secondary);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .phonetic-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
     }
 
     .phonetic-label {
-      font-size: 14px;
-      color: #94a3b8;
-      font-style: italic;
-      font-family: Georgia, serif;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      font-family: var(--font-phonetic);
+      letter-spacing: 0.02em;
+    }
+
+    /* Native Speech Pronunciation Audio Assist Button */
+    .btn-pronounce {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      color: var(--accent-cyan);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+    }
+
+    .btn-pronounce svg {
+      width: 13px;
+      height: 13px;
+      stroke-width: 2;
+    }
+
+    .btn-pronounce:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--accent-cyan);
+      transform: scale(1.08);
+    }
+
+    .btn-pronounce.speaking {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      animation: pulse 1s infinite;
     }
 
     /* Bookmark Button */
@@ -382,19 +433,28 @@
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-bookmark:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .btn-bookmark:active {
+      transform: scale(0.92);
     }
 
     .btn-bookmark svg {
       width: 18px;
       height: 18px;
       fill: var(--text-muted);
-      transition: fill 0.2s, transform 0.2s;
+      transition: fill 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .btn-bookmark.bookmarked {
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.18);
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
     }
 
     .btn-bookmark.bookmarked svg {
@@ -415,47 +475,50 @@
       font-weight: 700;
       color: var(--accent-cyan);
       background: var(--bg-pill);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.32);
       padding: 3px 10px;
       border-radius: 6px;
+      letter-spacing: -0.01em;
     }
 
     .synonym-tag.sec {
       color: #cbd5e1;
       background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.12);
       font-weight: 500;
     }
 
     /* Definition Box */
     .definition-box {
-      font-size: 15px;
-      line-height: 1.5;
-      color: #e2e8f0;
-      background: rgba(0, 0, 0, 0.22);
-      padding: 10px 14px;
+      font-size: 14.5px;
+      line-height: 1.58;
+      color: #f1f5f9;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 12px 16px;
       border-radius: 8px;
       border-left: 3px solid var(--accent-blue);
+      letter-spacing: 0.005em;
     }
 
     /* Context Sentence Quote */
     .context-box {
       font-size: 13px;
-      line-height: 1.45;
-      color: var(--text-secondary);
+      line-height: 1.5;
+      color: #cbd5e1;
       font-style: italic;
-      padding: 6px 12px;
+      padding: 8px 14px;
       background: rgba(255, 255, 255, 0.03);
       border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .context-prefix {
       font-style: normal;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       display: block;
       margin-bottom: 3px;
     }
@@ -469,6 +532,7 @@
       padding-top: 8px;
       font-size: 11px;
       color: var(--text-muted);
+      font-family: var(--font-telemetry);
     }
 
     /* Empty States */
@@ -477,7 +541,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 60px 24px;
+      padding: 64px 24px;
       text-align: center;
       color: var(--text-secondary);
       gap: 12px;
@@ -486,20 +550,21 @@
     .empty-icon {
       width: 48px;
       height: 48px;
-      fill: var(--text-muted);
-      opacity: 0.4;
+      color: var(--text-muted);
+      opacity: 0.5;
     }
 
     .empty-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text-primary);
+      letter-spacing: -0.01em;
     }
 
     .empty-text {
-      font-size: 14px;
-      max-width: 320px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      max-width: 360px;
+      line-height: 1.55;
       color: var(--text-muted);
     }
 
@@ -507,7 +572,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 100;
@@ -531,7 +596,7 @@
     .modal-sheet {
       width: 100%;
       max-width: 500px;
-      background: #0f172a;
+      background: #0d1320;
       border: 1px solid var(--bg-card-border);
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
@@ -540,6 +605,7 @@
       flex-direction: column;
       gap: 16px;
       animation: sheetUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     }
 
     @media (min-width: 640px) {
@@ -563,6 +629,7 @@
       font-size: 18px;
       font-weight: 800;
       color: #ffffff;
+      letter-spacing: -0.01em;
     }
 
     .btn-close-modal {
@@ -584,12 +651,17 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.08);
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13.5px;
+      transition: background 0.15s;
+    }
+
+    .export-radio-box:hover {
+      background: rgba(255, 255, 255, 0.07);
     }
 
     .export-radio-box input[type="radio"] {
@@ -610,7 +682,7 @@
       gap: 8px;
       padding: 12px 18px;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       border: none;
       cursor: pointer;
@@ -646,24 +718,36 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(40px);
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(14, 20, 34, 0.96);
       border: 1px solid var(--accent-cyan);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.7), 0 0 16px rgba(56, 189, 248, 0.2);
       color: #ffffff;
-      padding: 10px 18px;
+      padding: 10px 20px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12.5px;
+      font-weight: 700;
       opacity: 0;
       pointer-events: none;
-      transition: transform 0.3s, opacity 0.3s;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
       z-index: 200;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
     }
 
     #toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    /* Vestibular Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .vocab-card, .btn-bookmark, #toast, .modal-sheet {
+        transition: opacity 0.2s ease !important;
+        animation: none !important;
+      }
     }
   </style>
 </head>
@@ -676,8 +760,14 @@
       <div class="header-top-row">
         <div class="brand-group">
           <div class="brand-logo">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-6h2v6zm0-8h-2V7h2v1z"/>
+            <!-- Audio Spectrogram Waveform Brand Mark -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h2"/>
+              <path d="M6 7v10"/>
+              <path d="M10 3v18"/>
+              <path d="M14 8v8"/>
+              <path d="M18 5v14"/>
+              <path d="M22 12h-2"/>
             </svg>
           </div>
           <div class="brand-title-wrap">
@@ -736,8 +826,8 @@
         <button id="btn-close-modal" class="btn-close-modal">&times;</button>
       </div>
 
-      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
-        Export vocabulary to spaced-repetition flashcards for continuous learning after this event.
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45;">
+        Export session vocabulary to spaced-repetition flashcards for continuous learning after this event.
       </p>
 
       <div class="export-option-group">
@@ -771,7 +861,7 @@
   </div>
 
   <!-- Toast Notification Feedback -->
-  <div id="toast">Bookmarked for Anki</div>
+  <div id="toast">Saved to study deck</div>
 
   <script>
     (function() {
@@ -806,7 +896,23 @@
       function showToast(message) {
         toast.textContent = message;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2200);
+        setTimeout(() => toast.classList.remove('show'), 2400);
+      }
+
+      // Native Speech Pronunciation Audio Assist
+      function pronounceWord(word, btn) {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(word);
+          utterance.lang = 'en-US';
+          utterance.rate = 0.88; // Measured, clear human cadence
+          if (btn) {
+            btn.classList.add('speaking');
+            utterance.onend = () => btn.classList.remove('speaking');
+            utterance.onerror = () => btn.classList.remove('speaking');
+          }
+          window.speechSynthesis.speak(utterance);
+        }
       }
 
       // IndexedDB Persistence Layer
@@ -908,21 +1014,31 @@
 
         if (searchQuery) {
           emptyDiv.innerHTML = `
-            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
             <div class="empty-title">No matching vocabulary</div>
-            <div class="empty-text">No words matching "${searchQuery}" were found in this session.</div>
+            <div class="empty-text">No words matching "${searchQuery}" were found in this session yet. Try searching for a synonym or view all words.</div>
           `;
         } else if (isBookmarkTab) {
           emptyDiv.innerHTML = `
-            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
             <div class="empty-title">No bookmarks saved yet</div>
             <div class="empty-text">Tap the star icon on any vocabulary card to save it for spaced-repetition Anki export.</div>
           `;
         } else {
           emptyDiv.innerHTML = `
-            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-            <div class="empty-title">Waiting for spoken vocabulary...</div>
-            <div class="empty-text">As the presenter speaks uncommon or technical terms, simplified definitions and synonyms will appear here in real-time.</div>
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <div class="empty-title">Listening attentively for vocabulary...</div>
+            <div class="empty-text">As the presenter introduces specialized or technical terms, simplified definitions, synonyms, and pronunciation guides will appear here in real-time.</div>
           `;
         }
         feedList.appendChild(emptyDiv);
@@ -965,11 +1081,34 @@
 
         headerGroup.appendChild(wordRow);
 
+        // Phonetic Row with Pronunciation Audio Assist
         if (card.phoneticIpa) {
+          const phoneticRow = document.createElement('div');
+          phoneticRow.className = 'phonetic-row';
+
           const phonetic = document.createElement('span');
           phonetic.className = 'phonetic-label';
           phonetic.textContent = card.phoneticIpa;
-          headerGroup.appendChild(phonetic);
+          phoneticRow.appendChild(phonetic);
+
+          const btnPronounce = document.createElement('button');
+          btnPronounce.className = 'btn-pronounce';
+          btnPronounce.title = `Listen to pronunciation of "${card.word}"`;
+          btnPronounce.setAttribute('aria-label', `Pronounce ${card.word}`);
+          btnPronounce.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          `;
+          btnPronounce.onclick = (e) => {
+            e.stopPropagation();
+            pronounceWord(card.word, btnPronounce);
+          };
+          phoneticRow.appendChild(btnPronounce);
+
+          headerGroup.appendChild(phoneticRow);
         }
 
         topRow.appendChild(headerGroup);
@@ -1042,11 +1181,11 @@
         if (bookmarkedIds.has(cardId)) {
           bookmarkedIds.delete(cardId);
           card.isBookmarked = false;
-          showToast(`Removed "${card.word}" from bookmarks`);
+          showToast(`Removed "${card.word}" from study deck`);
         } else {
           bookmarkedIds.add(cardId);
           card.isBookmarked = true;
-          showToast(`★ Bookmarked "${card.word}" for Anki`);
+          showToast(`★ Saved "${card.word}" to study deck`);
         }
 
         saveCardToDB(card);

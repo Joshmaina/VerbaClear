@@ -12,12 +12,23 @@
       padding: 0;
     }
 
+    :root {
+      --font-humanist: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #0284c7;
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+    }
+
     html, body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
       background-color: transparent !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-humanist);
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+      text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -58,17 +69,17 @@
     .overlay-card {
       position: relative;
       min-width: 380px;
-      max-width: 600px;
-      background: rgba(10, 15, 29, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15);
-      border-radius: 16px;
-      padding: 20px 24px;
+      max-width: 620px;
+      background: rgba(9, 14, 26, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(56, 189, 248, 0.38);
+      box-shadow: 0 24px 48px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 20px 26px;
       color: #ffffff;
       opacity: 0;
-      transform: translateY(30px) scale(0.96);
+      transform: translateY(28px) scale(0.97);
       transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: transform, opacity;
       overflow: hidden;
@@ -81,7 +92,7 @@
 
     .overlay-card.exiting {
       opacity: 0;
-      transform: translateY(15px) scale(0.98);
+      transform: translateY(14px) scale(0.98);
       transition: opacity 0.35s ease-out, transform 0.35s ease-out;
     }
 
@@ -90,43 +101,52 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .brand-tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #38bdf8;
+      color: var(--accent-cyan);
       background: rgba(56, 189, 248, 0.12);
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 6px;
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+    }
+
+    .brand-icon-svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--accent-cyan);
+      flex-shrink: 0;
     }
 
     .pulse-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: #38bdf8;
-      box-shadow: 0 0 8px #38bdf8;
+      background-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
       animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.45; transform: scale(0.85); }
     }
 
     .timer-text {
-      font-size: 11px;
-      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
       color: #94a3b8;
       font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
     }
 
     /* Content Body: Word -> Synonyms */
@@ -138,25 +158,33 @@
 
     .word-row {
       display: flex;
-      align-items: baseline;
-      gap: 12px;
+      align-items: center;
+      gap: 14px;
       flex-wrap: wrap;
     }
 
     .original-word {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #f8fafc;
-      line-height: 1.1;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: -0.015em;
+      color: var(--text-main);
+      line-height: 1.15;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
     }
 
     .arrow-icon {
-      font-size: 20px;
-      color: #38bdf8;
-      font-weight: 600;
-      opacity: 0.8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+      width: 20px;
+      height: 20px;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+    }
+
+    .arrow-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .synonyms-container {
@@ -171,21 +199,22 @@
       align-items: center;
       font-size: 18px;
       font-weight: 700;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       border-radius: 8px;
-      padding: 4px 12px;
+      padding: 5px 14px;
       line-height: 1.2;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      letter-spacing: -0.01em;
     }
 
     .synonym-pill.secondary {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
-      color: #cbd5e1;
+      color: var(--text-sub);
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.16);
     }
 
     /* Linear Decay Progress Bar */
@@ -225,9 +254,9 @@
       align-items: center;
       gap: 6px;
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: #64748b;
       opacity: 0.6;
       transition: opacity 0.3s;
@@ -247,7 +276,18 @@
 
     .status-dot.connected {
       background-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+    }
+
+    /* Vestibular Accessibility for motion-sensitive attendees */
+    @media (prefers-reduced-motion: reduce) {
+      .overlay-card {
+        transition: opacity 0.3s ease-out;
+        transform: none !important;
+      }
+      .pulse-dot {
+        animation: none;
+      }
     }
   </style>
 </head>
@@ -266,6 +306,14 @@
     <div id="overlay-card" class="overlay-card">
       <div class="card-header">
         <span class="brand-tag">
+          <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12h2"/>
+            <path d="M6 7v10"/>
+            <path d="M10 3v18"/>
+            <path d="M14 8v8"/>
+            <path d="M18 5v14"/>
+            <path d="M22 12h-2"/>
+          </svg>
           <span class="pulse-dot"></span>
           VerbaClear Ambient
         </span>
@@ -275,7 +323,11 @@
       <div class="card-body">
         <div class="word-row">
           <span id="original-word" class="original-word">Labyrinthine</span>
-          <span class="arrow-icon">→</span>
+          <span class="arrow-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 5l7 7-7 7"/>
+            </svg>
+          </span>
           <div id="synonyms-container" class="synonyms-container">
             <span class="synonym-pill">Highly Complex</span>
             <span class="synonym-pill secondary">Maze-like</span>

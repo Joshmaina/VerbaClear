@@ -33,7 +33,7 @@
       --accent-amber: #f59e0b;
       --accent-red: #ef4444;
       --accent-red-glow: rgba(239, 68, 68, 0.3);
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
       --radius-xs: 4px;
       --radius-sm: 8px;
@@ -49,6 +49,10 @@
       background-size: 28px 28px;
       color: var(--text-primary);
       font-family: var(--font-sans);
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -498,6 +502,19 @@
 
     .btn-console:active {
       transform: translateY(1px);
+    }
+
+    .kbd-hint {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      opacity: 0.65;
+      padding: 1px 5px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-left: auto;
+      letter-spacing: 0.04em;
     }
 
     /* Mute Switch */
@@ -1195,6 +1212,7 @@
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
         <span>Mute Audio Bus</span>
+        <span class="kbd-hint">[M]</span>
       </button>
     </div>
 
@@ -1239,6 +1257,7 @@
             <line x1="12" y1="2" x2="12" y2="12"/>
           </svg>
           <span>Stage Blackout</span>
+          <span class="kbd-hint">[ESC]</span>
         </button>
 
         <button id="btn-stage-dismiss" class="btn-console btn-dismiss">
@@ -1247,6 +1266,7 @@
             <line x1="19" y1="5" x2="19" y2="19"/>
           </svg>
           <span>Dismiss Current</span>
+          <span class="kbd-hint">[SPACE]</span>
         </button>
       </div>
 
@@ -1556,12 +1576,12 @@
         if (data.isMuted) {
           audioModePill.textContent = 'AUDIO MUTED';
           audioModePill.className = 'tally-pill muted';
-          btnToggleMute.innerHTML = `${ICONS.micMuted}<span>Unmute Audio Bus</span>`;
+          btnToggleMute.innerHTML = `${ICONS.micMuted}<span>Unmute Audio Bus</span><span class="kbd-hint">[M]</span>`;
           btnToggleMute.className = 'btn-console btn-mute muted-state';
         } else {
           audioModePill.textContent = 'AUDIO LIVE';
           audioModePill.className = 'tally-pill live';
-          btnToggleMute.innerHTML = `${ICONS.micLive}<span>Mute Audio Bus</span>`;
+          btnToggleMute.innerHTML = `${ICONS.micLive}<span>Mute Audio Bus</span><span class="kbd-hint">[M]</span>`;
           btnToggleMute.className = 'btn-console btn-mute';
         }
       }
@@ -1953,6 +1973,23 @@
           }
         } catch (e) {
           showToast('Failed to delete pack', 'alert');
+        }
+      });
+
+      // Keyboard Shortcuts for Operator Ergonomics (Human Touch)
+      window.addEventListener('keydown', (e) => {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          btnStageBlackout.click();
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          btnStageDismiss.click();
+        } else if (e.key === 'm' || e.key === 'M') {
+          e.preventDefault();
+          btnToggleMute.click();
         }
       });
 
