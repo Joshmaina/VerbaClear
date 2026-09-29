@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#07090e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/companion/manifest.json">
   <title>VerbaClear Attendee Companion</title>
   <style>
     /* Reset & Base Variables */
@@ -162,6 +163,11 @@
     .status-dot.connected {
       background-color: var(--accent-green);
       box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+    }
+
+    .status-dot.offline {
+      background-color: var(--accent-gold);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
     }
 
     .btn-export-trigger {
@@ -1523,6 +1529,23 @@
 
         await fetchSessionHistory();
         connectWebSocket();
+
+        if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+          navigator.serviceWorker.register('/companion/sw.js').catch(() => {});
+        }
+
+        window.addEventListener('online', () => {
+          showToast('Network restored. Reconnecting to live stream...');
+          if (statusDot) statusDot.className = 'status-dot connected';
+          if (statusText) statusText.textContent = 'Live';
+          if (!ws || ws.readyState !== WebSocket.OPEN) connectWebSocket();
+        });
+
+        window.addEventListener('offline', () => {
+          showToast('Offline Mode: Preserving personal vocabulary in local storage.');
+          if (statusDot) statusDot.className = 'status-dot offline';
+          if (statusText) statusText.textContent = 'Offline';
+        });
       }
 
       init();

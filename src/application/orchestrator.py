@@ -59,6 +59,8 @@ class VerbaClearOrchestrator:
 
         # Session vocabulary history for mobile attendee onboarding and export
         self._session_history = []
+        self._transcript_segments = []
+        self._session_start_time = time.time()
         self._history_lock = threading.Lock()
 
         # Audio pipeline with callback
@@ -113,6 +115,11 @@ class VerbaClearOrchestrator:
         """
         if not segment.text or not self._is_active:
             return
+
+        with self._history_lock:
+            self._transcript_segments.append(segment)
+            if len(self._transcript_segments) > 3000:
+                self._transcript_segments.pop(0)
 
         # Phase 2: Linguistic and Frequency Evaluation
         evaluations = self.lexical_filter.evaluate_sentence(segment.text, active_pack_id=self.active_pack_id)
@@ -199,6 +206,79 @@ class VerbaClearOrchestrator:
         """Returns all vocabulary cards emitted during the active session."""
         with self._history_lock:
             return list(self._session_history)
+
+    def add_transcript_segment(self, segment: TranscribedSegment) -> None:
+        """Directly inserts a transcribed speech segment into session history (used in tests/simulations)."""
+        with self._history_lock:
+            self._transcript_segments.append(segment)
+            if len(self._transcript_segments) > 3000:
+                self._transcript_segments.pop(0)
+
+    def get_transcript_segments(self) -> list:
+        """Returns all transcribed speech segments from the session."""
+        with self._history_lock:
+            return list(self._transcript_segments)
+
+    def get_session_analytics(self) -> dict:
+        """
+        Calculates comprehensive post-event speech & vocabulary analytics:
+        - Session duration (formatted and seconds)
+        - Total words spoken
+        - Total vocabulary cards emitted
+        - Vocabulary simplification rate (%)
+        - Lexical diversity (Type-Token Ratio / TTR)
+        - Average ASR inference latency
+        - Domain context pack distribution
+        """
+        with self._history_lock:
+            segments = list(self._transcript_segments)
+            cards = list(self._session_history)
+
+        elapsed_seconds = round(time.time() - self._session_start_time, 1)
+
+        # Tokenize words spoken
+        all_words = []
+        for seg in segments:
+            all_words.extend([w.strip().lower() for w in seg.text.split() if w.strip()])
+
+        total_words_spoken = len(all_words)
+        unique_words_spoken = len(set(all_words))
+        type_token_ratio = round(unique_words_spoken / max(1, total_words_spoken), 3)
+
+        total_cards_emitted = len(cards)
+        simplification_rate = round((total_cards_emitted / max(1, total_words_spoken)) * 100.0, 2)
+
+        # Domain breakdown
+        domain_counts = {}
+        for c in cards:
+            badge = getattr(c, "domain_badge", "General") or "General"
+            domain_counts[badge] = domain_counts.get(badge, 0) + 1
+
+        metrics = self.audio_pipeline.metrics
+        return {
+            "sessionId": self.session_id,
+            "sessionStartTime": datetime.fromtimestamp(self._session_start_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "elapsedSeconds": elapsed_seconds,
+            "totalSpeechSegments": len(segments),
+            "totalWordsSpoken": total_words_spoken,
+            "uniqueWordsSpoken": unique_words_spoken,
+            "lexicalDiversityTTR": type_token_ratio,
+            "totalVocabularyCardsEmitted": total_cards_emitted,
+            "simplificationRatePercent": simplification_rate,
+            "domainDistribution": domain_counts,
+            "averageInferenceLatencyMs": round(metrics.average_inference_latency_ms, 1),
+            "totalFramesProcessed": metrics.total_frames_processed,
+            "activePackId": self.active_pack_id,
+            "activePackBadge": self.pack_manager.active_pack_badge,
+        }
+
+    def list_audio_devices(self) -> list:
+        """Returns available physical and virtual audio input devices on the host."""
+        return self.audio_pipeline.list_devices()
+
+    def select_audio_device(self, device_index: Optional[int]) -> bool:
+        """Dynamically switches the active audio input device at runtime."""
+        return self.audio_pipeline.set_device(device_index)
 
     async def _telemetry_broadcaster_loop(self) -> None:
         """Periodic telemetry heartbeat pushed to AV monitoring consoles at 4Hz (every 250ms)."""
@@ -293,18 +373,23 @@ class VerbaClearOrchestrator:
     def get_telemetry(self) -> dict:
         """Returns snapshot of real-time appliance performance metrics."""
         metrics = self.audio_pipeline.metrics
+        dev_info = self.audio_pipeline.get_current_device_info()
         return {
             "sessionId": self.session_id,
             "isActive": self._is_active,
             "isMuted": getattr(self.audio_pipeline, "is_muted", False),
-            "audioStreamActive": self.audio_pipeline.audio_source.is_active,
+            "audioStreamActive": getattr(self.audio_pipeline.audio_source, "is_active", False),
+            "currentDeviceIndex": dev_info.get("index"),
+            "currentDeviceName": dev_info.get("name", "Default Audio Input"),
             "vuRms": metrics.current_vu_rms,
             "vuDbfs": metrics.current_dbfs,
             "vadProb": metrics.current_vad_prob,
+            "waveform": getattr(metrics, "waveform_samples", [0.0] * 32),
             "isSpeaking": getattr(self.audio_pipeline.segmenter, "_is_speaking", False),
             "totalFramesProcessed": metrics.total_frames_processed,
             "totalSpeechChunks": metrics.total_speech_chunks_emitted,
             "totalSessionWords": len(self._session_history),
+            "totalTranscriptSegments": len(self._transcript_segments),
             "lastInferenceLatencyMs": round(metrics.last_inference_latency_ms, 1),
             "avgInferenceLatencyMs": round(metrics.average_inference_latency_ms, 1),
             "connectedStageClients": self.ws_hub.stage_client_count,

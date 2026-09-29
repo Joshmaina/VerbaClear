@@ -40,6 +40,8 @@ def test_companion_portal_serves_html(client):
     assert 'id="btn-download-csv"' in html_content
     assert "/ws/audience" in html_content
     assert "VerbaClearCompanionDB" in html_content  # IndexedDB
+    assert 'rel="manifest"' in html_content
+    assert "/companion/sw.js" in html_content
 
 
 def test_companion_websocket_and_session_history(client):
@@ -203,3 +205,23 @@ def test_export_tsv_and_csv_formats(client):
     assert "Word,Part of Speech,Phonetic IPA,Definition,Synonyms,Context Sentence" in csv_text
     assert "Labyrinthine" in csv_text
     assert "Highly Complex; Maze-like" in csv_text
+
+
+def test_companion_pwa_manifest_and_service_worker(client):
+    """Verifies that the PWA manifest and service worker are served with proper MIME types for offline installation."""
+    # 1. Manifest
+    manifest_resp = client.get("/companion/manifest.json")
+    assert manifest_resp.status_code == 200
+    assert "application/manifest+json" in manifest_resp.headers.get("content-type", "")
+    manifest_data = manifest_resp.json()
+    assert manifest_data["name"] == "VerbaClear Attendee Companion"
+    assert manifest_data["short_name"] == "VerbaClear"
+    assert manifest_data["start_url"] == "/companion"
+    assert manifest_data["display"] == "standalone"
+
+    # 2. Service Worker
+    sw_resp = client.get("/companion/sw.js")
+    assert sw_resp.status_code == 200
+    assert "javascript" in sw_resp.headers.get("content-type", "")
+    assert "verbaclear-companion-v1" in sw_resp.text
+    assert "/companion" in sw_resp.text

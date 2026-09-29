@@ -3,11 +3,11 @@ Audio Processing Pipeline Orchestrator for VerbaClear.
 Connects Audio Capture -> Silero VAD -> faster-whisper into a continuous streaming worker.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 import threading
 import time
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 
 from src.domain.interfaces import AudioSourcePort, SpeechToTextPort, VoiceActivityDetectorPort
@@ -28,6 +28,7 @@ class AudioPipelineMetrics:
     current_vu_rms: float = 0.0
     current_dbfs: float = -60.0
     current_vad_prob: float = 0.0
+    waveform_samples: List[float] = field(default_factory=lambda: [0.0] * 32)
 
 
 class AudioASRPipeline:
@@ -57,6 +58,25 @@ class AudioASRPipeline:
         self._is_running = False
         self.is_muted = False
         self._thread: Optional[threading.Thread] = None
+
+    def list_devices(self) -> List[Dict[str, Any]]:
+        """Lists available audio input devices on the host."""
+        if hasattr(self.audio_source, "list_devices"):
+            return self.audio_source.list_devices()
+        return PortAudioSource.list_devices()
+
+    def set_device(self, device_index: Optional[int]) -> bool:
+        """Dynamically switches the active audio input device."""
+        if hasattr(self.audio_source, "set_device"):
+            return self.audio_source.set_device(device_index)
+        return False
+
+    def get_current_device_info(self) -> Dict[str, Any]:
+        """Returns details for the currently active audio device."""
+        if hasattr(self.audio_source, "get_current_device_info"):
+            return self.audio_source.get_current_device_info()
+        idx = getattr(self.audio_source, "device_index", None)
+        return {"index": idx, "name": "Default Audio Input" if idx is None else f"Device #{idx}"}
 
     def mute(self) -> None:
         """Mutes audio processing; VU meters continue to read but ASR is bypassed."""
@@ -122,6 +142,15 @@ class AudioASRPipeline:
             self.metrics.current_vu_rms = round(rms, 4)
             self.metrics.current_dbfs = round(max(-60.0, min(0.0, dbfs)), 1)
             self.metrics.current_vad_prob = round(float(getattr(self.vad, "last_probability", 0.0)), 3)
+
+            # Real-time waveform downsampling for oscilloscope visualizer
+            if self.is_muted:
+                self.metrics.waveform_samples = [0.0] * 32
+            elif len(chunk) >= 32:
+                step = len(chunk) // 32
+                self.metrics.waveform_samples = [round(float(chunk[i * step]), 3) for i in range(32)]
+            elif len(chunk) > 0:
+                self.metrics.waveform_samples = [round(float(x), 3) for x in chunk] + [0.0] * (32 - len(chunk))
 
             # If muted by AV operator, bypass VAD and ASR
             if self.is_muted:

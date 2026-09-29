@@ -1,0 +1,20 @@
+[Unit]
+Description=VerbaClear Ambient Real-Time Speech Intelligence & Live Event Platform
+After=network.target sound.target
+Wants=sound.target
+
+[Service]
+Type=simple
+User=joshuamainadev
+WorkingDirectory=/home/joshuamainadev/Documents/Projects/VerbaClear
+ExecStart=/home/joshuamainadev/Documents/Projects/VerbaClear/.venv/bin/python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=10
+LimitNOFILE=65536
+Environment="PYTHONUNBUFFERED=1"
+Environment="VERBACLEAR_PORT=8000"
+
+[Install]
+WantedBy=multi-user.target

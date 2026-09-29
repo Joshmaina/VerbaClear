@@ -35,11 +35,20 @@ class StageDisplayQueueManager:
 
     def start(self, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Starts the queue consumer worker task."""
-        if self._is_running:
+        if self._is_running and self._worker_task and not self._worker_task.done():
             return
         self._is_running = True
         try:
             active_loop = loop or asyncio.get_running_loop()
+            # Ensure queue and delay event are bound to the current active event loop
+            try:
+                queue_loop = self._queue._get_loop()
+            except Exception:
+                queue_loop = getattr(self._queue, "_loop", None)
+            if queue_loop is not None and queue_loop is not active_loop:
+                self._queue = asyncio.Queue(maxsize=self.max_queue_depth)
+                self._delay_event = asyncio.Event()
+
             self._worker_task = active_loop.create_task(self._process_queue(), name="StageQueueWorker")
             logger.debug("StageDisplayQueueManager started with active loop.")
         except RuntimeError:

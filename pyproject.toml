@@ -50,6 +50,10 @@ verbaclear = "src.interfaces.cli:main"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:sounddevice.*",
+    "ignore::DeprecationWarning:starlette.*",
+]
 
 [tool.ruff]
 line-length = 100

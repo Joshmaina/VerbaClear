@@ -104,12 +104,44 @@ VerbaClear/
 │   │   ├── audio/                     # PortAudio driver & Silero-VAD v5 wrapper
 │   │   ├── asr/                       # faster-whisper CTranslate2 worker
 │   │   ├── nlp/                       # NGSL Bloom filter & spaCy lemmatizer
-│   │   └── storage/                   # SQLite WAL lexicon repository
-│   ├── application/                   # Core orchestrator pipeline
-│   └── api/                           # FastAPI ASGI application & WebSockets
-├── web/                               # Presentation clients
-│   ├── stage/                         # Next.js transparent lower-third overlay
-│   └── companion/                     # Next.js mobile PWA attendee portal
+│   │   ├── storage/                   # SQLite WAL lexicon repository
+│   │   └── export/                    # Anki .apkg, WebVTT, and SRT transcript exporters
+│   ├── application/                   # Core orchestrator pipeline & metrics
+│   ├── api/                           # FastAPI ASGI application & WebSockets
+│   └── web/                           # Self-contained offline presentation interfaces
+│       ├── admin/                     # Broadcast AV control room console
+│       ├── stage/                     # OBS / vMix transparent lower-third overlay
+│       └── companion/                 # Attendee mobile PWA with offline IndexedDB & Service Worker
+├── scripts/                           # Appliance automation & launchers
+│   ├── install_appliance.sh           # Hardware provisioning & model verification
+│   └── run_appliance.sh               # Single-command AV booth runtime launcher
+├── systemd/                           # 24/7 background service configuration
+│   └── verbaclear.service             # Production systemd unit file
+├── tests/                             # Comprehensive test suite (unit, integration, E2E)
 ├── pyproject.toml                     # Modern Python project & dependency configuration
 └── README.md
 ```
+
+---
+
+## 7. Quick Start & Sound Booth Appliance Operations
+
+### 1. Automated Installation
+Provision a dedicated Linux AV machine (Ubuntu/Debian) with system PortAudio libraries and models:
+```bash
+./scripts/install_appliance.sh
+```
+
+### 2. Launching VerbaClear Runtime
+Start the real-time processing engine and broadcast hub:
+```bash
+./scripts/run_appliance.sh
+```
+
+### 3. Sound Booth Operator Endpoints
+Once running, the appliance exposes three zero-install surfaces on the venue local network:
+- **AV Operator Control Room (`/admin`)**: Hardware input device selection, real-time signal oscilloscope, Silero VAD gating, persistent stage blackout toggle, manual card injection, domain context pack upload/management, and post-event transcript downloads.
+- **Stage Lower-Third Overlay (`/stage`)**: Transparent chroma-key / NDI window for OBS Studio, vMix, and secondary stage displays. Auto-fades cards with 7-second spring animations.
+- **Attendee Mobile Companion PWA (`/companion`)**: Accessible via QR code (`/api/session/qr`). Operates 100% offline via Service Worker & IndexedDB, supporting real-time card streaming, search, bookmarks, and one-tap Anki (`.apkg`) export.
+- **Post-Event Analytics & Subtitle Transcripts (`/api/export/transcript` & `/api/export/session-report`)**: Instant export to WebVTT (`.vtt`), SubRip (`.srt`), plain text (`.txt`), and full readability & simplification analytics JSON for video editors.
+

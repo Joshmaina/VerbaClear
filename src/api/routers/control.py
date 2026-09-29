@@ -29,6 +29,10 @@ class InjectCardRequest(BaseModel):
     domainBadge: Optional[str] = Field("Manual", description="Badge category")
 
 
+class SelectAudioDeviceRequest(BaseModel):
+    deviceIndex: Optional[int] = Field(None, description="Hardware device index to select, or None for system default")
+
+
 @router.get("/state")
 async def get_control_state():
     """Returns real-time telemetry snapshot for the AV operator dashboard."""
@@ -118,4 +122,41 @@ async def toggle_audio_mute():
         "status": "success",
         "isMuted": is_muted,
         "mode": "MUTED (VU meters active, ASR paused)" if is_muted else "LIVE (ASR active)",
+    }
+
+
+@router.get("/audio/devices")
+async def get_audio_devices():
+    """Lists all available hardware and virtual audio input devices on the host."""
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    devices = orchestrator.list_audio_devices()
+    dev_info = orchestrator.audio_pipeline.get_current_device_info()
+    return {
+        "status": "success",
+        "devices": devices,
+        "currentDeviceIndex": dev_info.get("index"),
+        "currentDeviceName": dev_info.get("name", "Default Audio Input"),
+    }
+
+
+@router.post("/audio/device")
+async def set_audio_device(request: SelectAudioDeviceRequest):
+    """Dynamically switches the active microphone or audio interface input."""
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    success = orchestrator.select_audio_device(request.deviceIndex)
+    dev_info = orchestrator.audio_pipeline.get_current_device_info()
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to initialize requested audio hardware device.")
+
+    return {
+        "status": "success",
+        "deviceIndex": request.deviceIndex,
+        "deviceName": dev_info.get("name"),
+        "message": f"Audio source switched to {dev_info.get('name')}.",
     }

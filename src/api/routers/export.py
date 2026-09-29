@@ -14,6 +14,11 @@ from src.infrastructure.export.anki_exporter import (
     generate_csv,
     generate_json,
 )
+from src.infrastructure.export.transcript_exporter import (
+    generate_plain_transcript,
+    generate_srt,
+    generate_vtt,
+)
 
 router = APIRouter(prefix="/api/export", tags=["Export"])
 logger = logging.getLogger(__name__)
@@ -133,4 +138,59 @@ async def export_json(request: Optional[ExportRequest] = None):
     return Response(
         content=json_content,
         media_type="application/json; charset=utf-8",
+    )
+
+
+@router.get("/session-report")
+async def export_session_report():
+    """
+    Returns comprehensive post-event session metrics & vocabulary analytics:
+    - Presentation duration, spoken word counts, unique vocabulary
+    - Readability / Lexical Diversity (Type-Token Ratio)
+    - Vocabulary simplification rate and domain context pack distribution
+    """
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    return orchestrator.get_session_analytics()
+
+
+@router.get("/transcript")
+async def export_transcript(format: str = Query("vtt", pattern="^(vtt|srt|txt)$")):
+    """
+    Exports full session speech transcript formatted as WebVTT (.vtt), SubRip (.srt), or plain text (.txt).
+    Enables video editors and conference organizers to immediately package presentation subtitles.
+    """
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    segments = orchestrator.get_transcript_segments()
+    if not segments:
+        raise HTTPException(status_code=400, detail="No speech segments recorded in current session.")
+
+    session_id = orchestrator.session_id
+
+    if format == "vtt":
+        content = generate_vtt(segments)
+        media_type = "text/vtt; charset=utf-8"
+        ext = "vtt"
+    elif format == "srt":
+        content = generate_srt(segments)
+        media_type = "application/x-subrip; charset=utf-8"
+        ext = "srt"
+    else:
+        content = generate_plain_transcript(segments)
+        media_type = "text/plain; charset=utf-8"
+        ext = "txt"
+
+    filename = f"verbaclear_{session_id}_transcript.{ext}"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Segment-Count": str(len(segments)),
+        },
     )

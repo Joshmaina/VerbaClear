@@ -34,6 +34,23 @@ class AudioSourcePort(ABC):
         """Reads a fixed chunk of 16kHz mono audio samples."""
         pass
 
+    def list_devices(self) -> List[dict]:
+        """Lists available audio input devices. Defaults to empty list for virtual/mock sources."""
+        return []
+
+    def set_device(self, device_index: Optional[int]) -> bool:
+        """Switches the hardware audio capture device. Defaults to True for virtual/mock sources."""
+        return True
+
+    @property
+    def is_active(self) -> bool:
+        """Returns True if the audio stream is currently active."""
+        return getattr(self, "_is_active", False)
+
+    @is_active.setter
+    def is_active(self, value: bool) -> None:
+        self._is_active = value
+
 
 class VoiceActivityDetectorPort(ABC):
     """Port for Voice Activity Detection (silence and noise rejection)."""

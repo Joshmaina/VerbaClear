@@ -1178,6 +1178,37 @@
         <span id="audio-mode-pill" class="tally-pill live">AUDIO LIVE</span>
       </div>
 
+      <!-- Hardware Device Selector -->
+      <div class="meter-container" style="margin-bottom: 12px;">
+        <div class="meter-label-row">
+          <span>Input Audio Device</span>
+          <span id="audio-device-status" class="meter-readout" style="color:var(--accent-cyan); font-size:10px;">Scanning...</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <select id="audio-device-select" class="input-field" style="flex:1; cursor:pointer; font-size:12px; padding:6px 10px;">
+            <option value="">Default Audio Input</option>
+          </select>
+          <button id="btn-refresh-devices" type="button" class="btn-console" style="padding:6px 10px; min-height:unset;" title="Refresh Device List">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px;">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Real-Time Signal Oscilloscope -->
+      <div class="meter-container" style="margin-bottom: 12px;">
+        <div class="meter-label-row">
+          <span>Signal Oscilloscope</span>
+          <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-dim);">16kHz PCM (32 SAMPLES)</span>
+        </div>
+        <div style="background:#04080c; border:1px solid rgba(0, 240, 255, 0.2); border-radius:4px; overflow:hidden;">
+          <canvas id="audio-waveform-canvas" width="480" height="50" style="width:100%; height:50px; display:block;"></canvas>
+        </div>
+      </div>
+
       <!-- Horizontal VU Meter -->
       <div class="meter-container">
         <div class="meter-label-row">
@@ -1461,6 +1492,81 @@
       </div>
     </div>
 
+    <!-- Post-Event Analytics & Subtitle Transcript Export (Col 12) -->
+    <div class="console-card col-span-12">
+      <div class="card-title-row">
+        <span class="card-title">
+          <span class="icon title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </span>
+          Session Intelligence, Analytics & Subtitle Exports
+        </span>
+        <span id="transcript-count-badge" class="tally-pill cue">0 Segments Recorded</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Spoken Words</div>
+          <div id="stat-spoken-words" style="font-size: 20px; font-weight: 700; color: var(--accent-cyan); font-family: var(--font-mono); margin-top: 4px;">0</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Unique Vocabulary</div>
+          <div id="stat-unique-words" style="font-size: 20px; font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); margin-top: 4px;">0</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Lexical Diversity (TTR)</div>
+          <div id="stat-lexical-diversity" style="font-size: 20px; font-weight: 700; color: #10b981; font-family: var(--font-mono); margin-top: 4px;">0.00</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Simplification Rate</div>
+          <div id="stat-simplification-rate" style="font-size: 20px; font-weight: 700; color: #f59e0b; font-family: var(--font-mono); margin-top: 4px;">0.0%</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <button id="btn-export-vtt" class="btn-console" type="button" style="flex: 1; min-width: 160px;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M7 15h10M7 9h4"/>
+          </svg>
+          <span>WebVTT Subtitles (.vtt)</span>
+        </button>
+        <button id="btn-export-srt" class="btn-console" type="button" style="flex: 1; min-width: 160px;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M7 12h10"/>
+          </svg>
+          <span>SubRip Subtitles (.srt)</span>
+        </button>
+        <button id="btn-export-txt" class="btn-console" type="button" style="flex: 1; min-width: 160px;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>Transcript Text (.txt)</span>
+        </button>
+        <button id="btn-export-report" class="btn-console" type="button" style="flex: 1; min-width: 160px;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <span>Session Analytics (.json)</span>
+        </button>
+        <button id="btn-export-anki-admin" class="btn-console btn-activate" type="button" style="flex: 1; min-width: 160px;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span>Anki Flashcard Deck (.apkg)</span>
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- Toast Notification Feedback HUD -->
@@ -1496,6 +1602,25 @@
       const vadStatusPill = document.getElementById('vad-status-pill');
       const audioModePill = document.getElementById('audio-mode-pill');
       const btnToggleMute = document.getElementById('btn-toggle-mute');
+
+      // Audio Device & Oscilloscope Elements
+      const audioDeviceSelect = document.getElementById('audio-device-select');
+      const audioDeviceStatus = document.getElementById('audio-device-status');
+      const btnRefreshDevices = document.getElementById('btn-refresh-devices');
+      const audioWaveformCanvas = document.getElementById('audio-waveform-canvas');
+      const waveformCtx = audioWaveformCanvas ? audioWaveformCanvas.getContext('2d') : null;
+
+      // Session Intelligence & Export Elements
+      const transcriptCountBadge = document.getElementById('transcript-count-badge');
+      const statSpokenWords = document.getElementById('stat-spoken-words');
+      const statUniqueWords = document.getElementById('stat-unique-words');
+      const statLexicalDiversity = document.getElementById('stat-lexical-diversity');
+      const statSimplificationRate = document.getElementById('stat-simplification-rate');
+      const btnExportVtt = document.getElementById('btn-export-vtt');
+      const btnExportSrt = document.getElementById('btn-export-srt');
+      const btnExportTxt = document.getElementById('btn-export-txt');
+      const btnExportReport = document.getElementById('btn-export-report');
+      const btnExportAnkiAdmin = document.getElementById('btn-export-anki-admin');
 
       const previewCard = document.getElementById('preview-card');
       const previewWord = document.getElementById('preview-word');
@@ -1624,6 +1749,177 @@
           btnToggleMute.innerHTML = `${ICONS.micLive}<span>Mute Audio Bus</span><span class="kbd-hint">[M]</span>`;
           btnToggleMute.className = 'btn-console btn-mute';
         }
+
+        // Device and waveform telemetry updates
+        if (data.currentDeviceName && audioDeviceStatus) {
+          audioDeviceStatus.textContent = data.currentDeviceName;
+        }
+        if (data.waveform && waveformCtx) {
+          drawOscilloscope(data.waveform);
+        }
+        if (data.totalTranscriptSegments !== undefined && transcriptCountBadge) {
+          transcriptCountBadge.textContent = `${data.totalTranscriptSegments} Segments Recorded`;
+        }
+      }
+
+      // Real-Time Signal Oscilloscope Visualizer
+      function drawOscilloscope(samples) {
+        if (!audioWaveformCanvas || !waveformCtx) return;
+        const w = audioWaveformCanvas.width;
+        const h = audioWaveformCanvas.height;
+        const midY = h / 2;
+
+        waveformCtx.fillStyle = '#04080c';
+        waveformCtx.fillRect(0, 0, w, h);
+
+        // Center zero-crossing reference line
+        waveformCtx.strokeStyle = 'rgba(0, 240, 255, 0.18)';
+        waveformCtx.lineWidth = 1;
+        waveformCtx.beginPath();
+        waveformCtx.moveTo(0, midY);
+        waveformCtx.lineTo(w, midY);
+        waveformCtx.stroke();
+
+        // Oscilloscope waveform curve
+        waveformCtx.strokeStyle = '#00f0ff';
+        waveformCtx.lineWidth = 2;
+        waveformCtx.beginPath();
+
+        const step = w / Math.max(1, (samples.length - 1));
+        for (let i = 0; i < samples.length; i++) {
+          const x = i * step;
+          const val = Math.max(-1.0, Math.min(1.0, (samples[i] || 0) * 2.8));
+          const y = midY - (val * (h * 0.44));
+          if (i === 0) waveformCtx.moveTo(x, y);
+          else waveformCtx.lineTo(x, y);
+        }
+        waveformCtx.stroke();
+      }
+
+      // Audio Hardware Device Management
+      async function loadAudioDevices() {
+        if (!audioDeviceSelect) return;
+        try {
+          const resp = await fetch(`${API_BASE}/api/control/audio/devices`);
+          if (resp.ok) {
+            const data = await resp.json();
+            audioDeviceSelect.innerHTML = '';
+
+            const defOpt = document.createElement('option');
+            defOpt.value = '';
+            defOpt.textContent = 'Default Audio Input';
+            if (data.currentDeviceIndex === null || data.currentDeviceIndex === undefined) {
+              defOpt.selected = true;
+            }
+            audioDeviceSelect.appendChild(defOpt);
+
+            if (data.devices && data.devices.length > 0) {
+              data.devices.forEach(dev => {
+                const opt = document.createElement('option');
+                opt.value = dev.index;
+                opt.textContent = `${dev.name} (${dev.channels}ch, ${dev.default_samplerate}Hz)`;
+                if (dev.index === data.currentDeviceIndex) {
+                  opt.selected = true;
+                }
+                audioDeviceSelect.appendChild(opt);
+              });
+            }
+            if (audioDeviceStatus && data.currentDeviceName) {
+              audioDeviceStatus.textContent = data.currentDeviceName;
+            }
+          }
+        } catch (e) {
+          if (audioDeviceStatus) audioDeviceStatus.textContent = 'Hardware Ready';
+        }
+      }
+
+      if (audioDeviceSelect) {
+        audioDeviceSelect.addEventListener('change', async () => {
+          const val = audioDeviceSelect.value;
+          const devIdx = val === '' ? null : parseInt(val, 10);
+          try {
+            const resp = await fetch(`${API_BASE}/api/control/audio/device`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ deviceIndex: devIdx }),
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+              showToast(`Audio source switched to: ${data.deviceName || 'Selected input'}`, 'success');
+              if (audioDeviceStatus && data.deviceName) {
+                audioDeviceStatus.textContent = data.deviceName;
+              }
+            } else {
+              showToast(`Device switch failed: ${data.detail || 'Hardware busy'}`, 'alert');
+            }
+          } catch (e) {
+            showToast('Failed to switch audio device', 'alert');
+          }
+        });
+      }
+
+      if (btnRefreshDevices) {
+        btnRefreshDevices.addEventListener('click', async () => {
+          await loadAudioDevices();
+          showToast('Audio input devices refreshed', 'info');
+        });
+      }
+
+      // Post-Event Analytics & Subtitle Exports
+      async function loadSessionAnalytics() {
+        try {
+          const resp = await fetch(`${API_BASE}/api/export/session-report`);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (statSpokenWords) statSpokenWords.textContent = (data.totalWordsSpoken ?? 0).toLocaleString();
+            if (statUniqueWords) statUniqueWords.textContent = (data.uniqueWordsSpoken ?? 0).toLocaleString();
+            if (statLexicalDiversity) statLexicalDiversity.textContent = (data.lexicalDiversityTTR ?? 0).toFixed(2);
+            if (statSimplificationRate) statSimplificationRate.textContent = `${(data.simplificationRatePercent ?? 0).toFixed(1)}%`;
+            if (transcriptCountBadge && data.totalSpeechSegments !== undefined) {
+              transcriptCountBadge.textContent = `${data.totalSpeechSegments} Segments Recorded`;
+            }
+          }
+        } catch (e) {}
+      }
+
+      function triggerDownload(url, filename) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      if (btnExportVtt) {
+        btnExportVtt.addEventListener('click', () => {
+          showToast('Exporting WebVTT Subtitles (.vtt)...', 'info');
+          triggerDownload(`${API_BASE}/api/export/transcript?format=vtt`, 'verbaclear_transcript.vtt');
+        });
+      }
+      if (btnExportSrt) {
+        btnExportSrt.addEventListener('click', () => {
+          showToast('Exporting SubRip Subtitles (.srt)...', 'info');
+          triggerDownload(`${API_BASE}/api/export/transcript?format=srt`, 'verbaclear_transcript.srt');
+        });
+      }
+      if (btnExportTxt) {
+        btnExportTxt.addEventListener('click', () => {
+          showToast('Exporting Plain Transcript (.txt)...', 'info');
+          triggerDownload(`${API_BASE}/api/export/transcript?format=txt`, 'verbaclear_transcript.txt');
+        });
+      }
+      if (btnExportReport) {
+        btnExportReport.addEventListener('click', () => {
+          showToast('Exporting Session Analytics (.json)...', 'info');
+          triggerDownload(`${API_BASE}/api/export/session-report`, 'verbaclear_session_report.json');
+        });
+      }
+      if (btnExportAnkiAdmin) {
+        btnExportAnkiAdmin.addEventListener('click', () => {
+          showToast('Exporting Anki Flashcard Deck (.apkg)...', 'success');
+          triggerDownload(`${API_BASE}/api/export/anki`, 'verbaclear_vocabulary.apkg');
+        });
       }
 
       // Add to Audit Log
@@ -2088,7 +2384,10 @@
 
       // Initialize
       pollInitialState();
+      loadAudioDevices();
       loadContextPacks();
+      loadSessionAnalytics();
+      setInterval(loadSessionAnalytics, 5000);
       connectTelemetry();
       connectAudienceFeed();
     })();

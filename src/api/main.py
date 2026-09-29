@@ -32,6 +32,8 @@ logger = logging.getLogger("verbaclear")
 WEB_DIR = Path(__file__).parent.parent / "web"
 STAGE_HTML = WEB_DIR / "stage" / "index.html"
 COMPANION_HTML = WEB_DIR / "companion" / "index.html"
+COMPANION_MANIFEST = WEB_DIR / "companion" / "manifest.json"
+COMPANION_SW = WEB_DIR / "companion" / "sw.js"
 ADMIN_HTML = WEB_DIR / "admin" / "index.html"
 
 # Global instances
@@ -90,6 +92,22 @@ async def get_companion_portal():
     if not COMPANION_HTML.exists():
         raise HTTPException(status_code=404, detail="Companion template not found")
     return FileResponse(COMPANION_HTML, media_type="text/html")
+
+
+@app.get("/companion/manifest.json")
+async def get_companion_manifest():
+    """Serves PWA Web App Manifest for attendee companion."""
+    if not COMPANION_MANIFEST.exists():
+        raise HTTPException(status_code=404, detail="Manifest not found")
+    return FileResponse(COMPANION_MANIFEST, media_type="application/manifest+json")
+
+
+@app.get("/companion/sw.js")
+async def get_companion_service_worker():
+    """Serves PWA Service Worker for offline attendee caching."""
+    if not COMPANION_SW.exists():
+        raise HTTPException(status_code=404, detail="Service worker not found")
+    return FileResponse(COMPANION_SW, media_type="application/javascript")
 
 
 @app.get("/admin")
