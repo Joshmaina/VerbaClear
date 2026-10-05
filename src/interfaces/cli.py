@@ -116,6 +116,7 @@ def start_appliance(args):
     local_ip = get_local_ip() if not args.host_ip else args.host_ip
     port = args.port
 
+    admin_url = f"http://{local_ip}:{port}/admin"
     stage_url = f"http://{local_ip}:{port}/stage"
     companion_url = f"http://{local_ip}:{port}/companion"
     qr_url = f"http://{local_ip}:{port}/api/session/qr"
@@ -123,14 +124,19 @@ def start_appliance(args):
     print(BANNER)
     print("VerbaClear Live Event Appliance Active")
     print("------------------------------------------------------------------------")
+    print(f"AV Operator Control Room:     {admin_url}")
     print(f"Primary Stage Lower-Third:    {stage_url}")
     print(f"Audience Mobile Companion:    {companion_url}")
     print(f"Venue Dynamic QR Code:        {qr_url}")
     print("------------------------------------------------------------------------")
     print(f"Binding: {args.host}:{port}  |  Session ID: {orchestrator.session_id}")
     print(f"Audio Mode: {'Live Microphone' if not args.no_audio else 'Silent / Mock Simulation'}")
+    if args.pack:
+        orchestrator.set_active_pack(args.pack)
+        print(f"Active Domain Context Pack:   {args.pack}")
     if not args.no_audio and args.device_index is not None:
-        print(f"Target Audio Device Index: {args.device_index}")
+        orchestrator.select_audio_device(args.device_index)
+        print(f"Target Audio Device Index:    {args.device_index}")
     print("------------------------------------------------------------------------")
     print("Press Ctrl+C to safely shut down the appliance.\n")
 
