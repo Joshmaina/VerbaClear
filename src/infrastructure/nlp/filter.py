@@ -54,15 +54,19 @@ class LexicalFilterEngine(LexicalFilterPort):
             if token.lemma in seen_lemmas:
                 continue
 
-            # Rule 3: Check frequency baseline (NGSL / NAWL)
+            # Rule 3: Check CEFR frequency baseline (NGSL / NAWL / CEFR)
             is_common = self.frequency_index.is_common(token.lemma)
             rank = self.frequency_index.get_rank(token.lemma)
 
-            # A word is flagged as rare if it is NOT in common vocabulary (Bloom filter/NGSL)
-            # OR if it exists in our curated advanced lexicon or active context pack
-            is_in_lexicon = self.lexicon_repo.get_entry(token.lemma, active_pack_id=active_pack_id) is not None
+            # A word is flagged as rare if:
+            # 1. It exceeds the active CEFR rarity threshold (not is_common)
+            # 2. OR it exists in an active domain context pack
+            is_in_active_pack = (
+                active_pack_id is not None
+                and self.lexicon_repo.get_entry(token.lemma, active_pack_id=active_pack_id) is not None
+            )
 
-            is_rare = (not is_common) or is_in_lexicon
+            is_rare = (not is_common) or is_in_active_pack
 
             if is_rare:
                 seen_lemmas.add(token.lemma)
@@ -88,3 +92,11 @@ class LexicalFilterEngine(LexicalFilterPort):
     ) -> Tuple[Optional[str], Optional[str]]:
         """Returns (phonetic_ipa, 1_sentence_definition) for a lemma."""
         return self.lexicon_repo.resolve_definition_and_phonetics(lemma, active_pack_id=active_pack_id)
+
+    def set_sensitivity(self, level: str, custom_rank: Optional[int] = None) -> dict:
+        """Tunes CEFR sensitivity level (B1, B2, C1, C2) or custom rank threshold."""
+        return self.frequency_index.set_sensitivity(level, custom_rank=custom_rank)
+
+    def get_sensitivity(self) -> dict:
+        """Returns current CEFR sensitivity configuration."""
+        return self.frequency_index.get_sensitivity()

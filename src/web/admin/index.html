@@ -1317,6 +1317,52 @@
         <strong>Stage Blackout:</strong> Instantly clears the stage lower-third card and purges all queued vocabulary cards.<br>
         <strong>Dismiss Current:</strong> Skips the active card immediately, popping the next item in the queue.
       </p>
+
+      <!-- NDI Broadcast & Alpha Video Output Panel -->
+      <div style="margin-top: 14px; padding: 12px 14px; background: var(--panel-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+              <line x1="7" y1="2" x2="7" y2="22"/>
+              <line x1="17" y1="2" x2="17" y2="22"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+            </svg>
+            Broadcast Output Engine
+          </span>
+          <span id="ndi-mode-pill" class="tally-pill cue">VIRTUAL ALPHA STREAM</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
+            <span style="color: var(--accent-cyan); font-weight: 600;">1080p RGBA Alpha</span> • 30 FPS • Source: <code style="font-family: var(--font-mono); color: var(--text-primary);">VERBACLEAR-STAGE</code>
+          </div>
+          <button id="btn-toggle-ndi" class="btn-secondary" type="button" style="padding: 4px 10px; font-size: 11px;">
+            Pause Stream
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+          <a href="/stage" target="_blank" class="btn-console" style="flex: 1; min-width: 140px; min-height: 30px; font-size: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 4px 8px;">
+            <span class="icon" style="width: 12px; height: 12px; margin-right: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </span>
+            Browser Source (/stage)
+          </a>
+          <a href="/api/broadcast/stream/alpha" target="_blank" class="btn-console" style="flex: 1; min-width: 140px; min-height: 30px; font-size: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 4px 8px;">
+            <span class="icon" style="width: 12px; height: 12px; margin-right: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </span>
+            HTTP Alpha Stream
+          </a>
+          <a href="/api/broadcast/frame" target="_blank" class="btn-console" style="flex: 1; min-width: 140px; min-height: 30px; font-size: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 4px 8px;">
+            <span class="icon" style="width: 12px; height: 12px; margin-right: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </span>
+            Frame PNG Grab
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Domain Context Pack Selection & Custom Packs (Col 6) -->
@@ -1432,6 +1478,45 @@
               </svg>
               <span>Create & Activate Pack</span>
             </button>
+          </div>
+        </div>
+
+        <!-- CEFR / Grade-Level Vocabulary Sensitivity Slider & Preset Buttons -->
+        <div style="margin-top: 14px; padding: 12px 14px; background: var(--panel-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              Vocabulary Sensitivity (CEFR Demographic Filter)
+            </span>
+            <span id="cefr-active-level" class="tally-pill live" style="font-size: 10px; padding: 2px 8px;">B2 (Upper Intermediate)</span>
+          </div>
+
+          <!-- Stepped Tier Buttons -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+            <button id="btn-cefr-b1" type="button" class="btn-console" style="min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+              <strong style="font-size: 13px; color: var(--accent-cyan);">B1</strong>
+              <span style="font-size: 9px; color: var(--text-muted);">Intermediate</span>
+            </button>
+            <button id="btn-cefr-b2" type="button" class="btn-console active-tier" style="min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.18);">
+              <strong style="font-size: 13px; color: var(--accent-cyan);">B2</strong>
+              <span style="font-size: 9px; color: var(--text-muted);">Standard</span>
+            </button>
+            <button id="btn-cefr-c1" type="button" class="btn-console" style="min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+              <strong style="font-size: 13px; color: var(--accent-cyan);">C1</strong>
+              <span style="font-size: 9px; color: var(--text-muted);">Advanced</span>
+            </button>
+            <button id="btn-cefr-c2" type="button" class="btn-console" style="min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px;">
+              <strong style="font-size: 13px; color: var(--accent-cyan);">C2</strong>
+              <span style="font-size: 9px; color: var(--text-muted);">Academic</span>
+            </button>
+          </div>
+
+          <div id="cefr-description-text" style="font-size: 11px; color: var(--text-secondary); line-height: 1.4; padding: 6px 10px; background: rgba(0, 0, 0, 0.25); border-radius: 4px; border-left: 2px solid var(--accent-cyan);">
+            Standard baseline. Balances clarity without clutter. Explains advanced and uncommon terms for standard industry talks.
           </div>
         </div>
 
@@ -1629,6 +1714,18 @@
       const btnStageBlackout = document.getElementById('btn-stage-blackout');
       const btnStageDismiss = document.getElementById('btn-stage-dismiss');
 
+      // NDI & Transparent Video Output Elements
+      const ndiModePill = document.getElementById('ndi-mode-pill');
+      const btnToggleNdi = document.getElementById('btn-toggle-ndi');
+
+      // CEFR Demographic Filter Elements
+      const cefrActiveLevel = document.getElementById('cefr-active-level');
+      const cefrDescriptionText = document.getElementById('cefr-description-text');
+      const btnCefrB1 = document.getElementById('btn-cefr-b1');
+      const btnCefrB2 = document.getElementById('btn-cefr-b2');
+      const btnCefrC1 = document.getElementById('btn-cefr-c1');
+      const btnCefrC2 = document.getElementById('btn-cefr-c2');
+
       const injectionForm = document.getElementById('injection-form');
       const injectWord = document.getElementById('inject-word');
       const injectSynonyms = document.getElementById('inject-synonyms');
@@ -1759,6 +1856,35 @@
         }
         if (data.totalTranscriptSegments !== undefined && transcriptCountBadge) {
           transcriptCountBadge.textContent = `${data.totalTranscriptSegments} Segments Recorded`;
+        }
+
+        // NDI Broadcast Output updates
+        if (data.ndi && ndiModePill) {
+          if (!data.ndi.isStreaming) {
+            ndiModePill.textContent = 'STREAM PAUSED';
+            ndiModePill.className = 'tally-pill muted';
+            if (btnToggleNdi) btnToggleNdi.textContent = 'Resume Stream';
+          } else if (data.ndi.isNdiAvailable) {
+            ndiModePill.textContent = `NDI LIVE (${data.ndi.streamName})`;
+            ndiModePill.className = 'tally-pill live';
+            if (btnToggleNdi) btnToggleNdi.textContent = 'Pause Stream';
+          } else {
+            ndiModePill.textContent = 'VIRTUAL ALPHA STREAM';
+            ndiModePill.className = 'tally-pill cue';
+            if (btnToggleNdi) btnToggleNdi.textContent = 'Pause Stream';
+          }
+        }
+
+        // CEFR Sensitivity updates
+        if (data.sensitivity) {
+          updateCefrButtons(data.sensitivity.level);
+          if (cefrActiveLevel) {
+            const subtitle = data.sensitivity.name ? data.sensitivity.name.split('-')[1]?.trim() : 'Custom';
+            cefrActiveLevel.textContent = `${data.sensitivity.level} (${subtitle || 'Custom'})`;
+          }
+          if (cefrDescriptionText && data.sensitivity.description) {
+            cefrDescriptionText.textContent = data.sensitivity.description;
+          }
         }
       }
 
@@ -2068,6 +2194,71 @@
           showToast('Failed to dismiss card (Check server connection)', 'alert');
         }
       });
+
+      // NDI Broadcast Streaming Toggle
+      if (btnToggleNdi) {
+        btnToggleNdi.addEventListener('click', async () => {
+          try {
+            const resp = await fetch(`${API_BASE}/api/control/ndi/toggle`, { method: 'POST' });
+            if (resp.ok) {
+              const res = await resp.json();
+              showToast(res.message, res.isStreaming ? 'success' : 'warn');
+              btnToggleNdi.textContent = res.isStreaming ? 'Pause Stream' : 'Resume Stream';
+            }
+          } catch (e) {
+            showToast('Failed to toggle broadcast stream', 'alert');
+          }
+        });
+      }
+
+      // CEFR Sensitivity Control
+      function updateCefrButtons(activeLevel) {
+        const btns = { B1: btnCefrB1, B2: btnCefrB2, C1: btnCefrC1, C2: btnCefrC2 };
+        Object.keys(btns).forEach(lvl => {
+          const btn = btns[lvl];
+          if (!btn) return;
+          if (lvl === activeLevel) {
+            btn.classList.add('active-tier');
+            btn.style.borderColor = 'var(--accent-cyan)';
+            btn.style.background = 'rgba(56, 189, 248, 0.18)';
+          } else {
+            btn.classList.remove('active-tier');
+            btn.style.borderColor = '';
+            btn.style.background = '';
+          }
+        });
+      }
+
+      async function setSensitivity(level) {
+        try {
+          const resp = await fetch(`${API_BASE}/api/control/sensitivity`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level }),
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            showToast(data.message, 'success');
+            updateCefrButtons(data.sensitivity.level);
+            if (cefrActiveLevel) {
+              const subtitle = data.sensitivity.name ? data.sensitivity.name.split('-')[1]?.trim() : '';
+              cefrActiveLevel.textContent = `${data.sensitivity.level} (${subtitle || ''})`;
+            }
+            if (cefrDescriptionText && data.sensitivity.description) {
+              cefrDescriptionText.textContent = data.sensitivity.description;
+            }
+          } else {
+            showToast('Failed to set vocabulary sensitivity', 'alert');
+          }
+        } catch (e) {
+          showToast('Network error setting sensitivity', 'alert');
+        }
+      }
+
+      if (btnCefrB1) btnCefrB1.addEventListener('click', () => setSensitivity('B1'));
+      if (btnCefrB2) btnCefrB2.addEventListener('click', () => setSensitivity('B2'));
+      if (btnCefrC1) btnCefrC1.addEventListener('click', () => setSensitivity('C1'));
+      if (btnCefrC2) btnCefrC2.addEventListener('click', () => setSensitivity('C2'));
 
       btnToggleMute.addEventListener('click', async () => {
         try {

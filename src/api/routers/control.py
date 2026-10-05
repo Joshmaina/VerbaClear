@@ -33,6 +33,11 @@ class SelectAudioDeviceRequest(BaseModel):
     deviceIndex: Optional[int] = Field(None, description="Hardware device index to select, or None for system default")
 
 
+class SetSensitivityRequest(BaseModel):
+    level: str = Field("B2", description="CEFR sensitivity level: B1, B2, C1, or C2")
+    customRank: Optional[int] = Field(None, ge=500, le=25000, description="Optional custom frequency rank threshold")
+
+
 @router.get("/state")
 async def get_control_state():
     """Returns real-time telemetry snapshot for the AV operator dashboard."""
@@ -160,3 +165,35 @@ async def set_audio_device(request: SelectAudioDeviceRequest):
         "deviceName": dev_info.get("name"),
         "message": f"Audio source switched to {dev_info.get('name')}.",
     }
+
+
+@router.get("/sensitivity")
+async def get_vocabulary_sensitivity():
+    """Returns the active CEFR vocabulary sensitivity configuration."""
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    return {
+        "status": "success",
+        "sensitivity": orchestrator.get_sensitivity(),
+    }
+
+
+@router.post("/sensitivity")
+async def set_vocabulary_sensitivity(request: SetSensitivityRequest):
+    """Dynamically adjusts CEFR vocabulary sensitivity level (B1, B2, C1, C2) or rank threshold."""
+    from src.api.main import orchestrator
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+
+    try:
+        updated = orchestrator.set_sensitivity(level=request.level, custom_rank=request.customRank)
+        return {
+            "status": "success",
+            "action": "SENSITIVITY_UPDATED",
+            "sensitivity": updated,
+            "message": f"Vocabulary sensitivity set to {updated['level']} (Threshold: rank {updated['thresholdRank']}).",
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

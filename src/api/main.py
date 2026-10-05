@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from src.api.routers.broadcast import router as broadcast_router
 from src.api.routers.control import router as control_router
 from src.api.routers.export import router as export_router
 from src.api.routers.packs import router as packs_router
@@ -76,6 +77,7 @@ app.include_router(session_router)
 app.include_router(export_router)
 app.include_router(control_router)
 app.include_router(packs_router)
+app.include_router(broadcast_router)
 
 
 @app.get("/stage")

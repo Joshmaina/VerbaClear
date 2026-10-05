@@ -15,6 +15,7 @@ from src.api.ws.hub import WebSocketHub
 from src.api.ws.rate_limiter import StageDisplayQueueManager
 from src.application.audio_pipeline import AudioASRPipeline
 from src.domain.models import AudienceCompanionCard, StageOverlayCard, TranscribedSegment
+from src.infrastructure.broadcast.ndi_sender import NDIBroadcastAdapter
 from src.infrastructure.nlp.context_packs import ContextPackManager
 from src.infrastructure.nlp.filter import LexicalFilterEngine
 
@@ -33,6 +34,7 @@ class VerbaClearOrchestrator:
         audio_pipeline: Optional[AudioASRPipeline] = None,
         lexical_filter: Optional[LexicalFilterEngine] = None,
         ws_hub: Optional[WebSocketHub] = None,
+        ndi_adapter: Optional[NDIBroadcastAdapter] = None,
         session_id: Optional[str] = None,
         active_pack_id: Optional[str] = None,
     ):
@@ -40,6 +42,7 @@ class VerbaClearOrchestrator:
 
         self.ws_hub = ws_hub or WebSocketHub()
         self.lexical_filter = lexical_filter or LexicalFilterEngine()
+        self.ndi_adapter = ndi_adapter or NDIBroadcastAdapter()
         self.pack_manager = ContextPackManager(repo=self.lexical_filter.lexicon_repo)
         if active_pack_id:
             self.pack_manager.activate_pack(active_pack_id)
@@ -48,7 +51,7 @@ class VerbaClearOrchestrator:
             self.active_pack_id = None
 
         self.stage_queue = StageDisplayQueueManager(
-            dispatch_coroutine=self.ws_hub.broadcast_stage,
+            dispatch_coroutine=self._on_stage_dispatch,
             min_display_separation_s=4.0,
         )
 
@@ -68,6 +71,12 @@ class VerbaClearOrchestrator:
             on_segment_callback=self._handle_transcribed_segment,
         )
 
+    async def _on_stage_dispatch(self, card: StageOverlayCard) -> None:
+        """Dispatches card to WebSocket stage clients and NDI broadcast output."""
+        if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+            self.ndi_adapter.set_card(card)
+        await self.ws_hub.broadcast_stage(card)
+
     def attach_event_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         """Attaches the main ASGI asyncio event loop for threadsafe coroutine scheduling."""
         self._async_loop = loop
@@ -75,9 +84,11 @@ class VerbaClearOrchestrator:
             self._telemetry_task = loop.create_task(self._telemetry_broadcaster_loop(), name="TelemetryLoop")
 
     def start(self) -> None:
-        """Starts audio pipeline, queue workers, and telemetry broadcasts."""
+        """Starts audio pipeline, queue workers, NDI broadcaster, and telemetry broadcasts."""
         self._is_active = True
         self.stage_queue.start(loop=self._async_loop)
+        if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+            self.ndi_adapter.start()
         try:
             self.audio_pipeline.start()
         except Exception as e:
@@ -90,7 +101,7 @@ class VerbaClearOrchestrator:
         logger.info("VerbaClear Master Orchestrator started (Session ID: %s)", self.session_id)
 
     async def stop(self) -> None:
-        """Gracefully shuts down pipeline and releases hardware/network resources."""
+        """Gracefully shuts down pipeline and releases hardware/network/NDI resources."""
         if not self._is_active:
             return
 
@@ -103,6 +114,9 @@ class VerbaClearOrchestrator:
             except asyncio.CancelledError:
                 pass
             self._telemetry_task = None
+
+        if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+            self.ndi_adapter.stop()
 
         self.audio_pipeline.stop()
         await self.stage_queue.stop()
@@ -309,9 +323,13 @@ class VerbaClearOrchestrator:
         if self.is_stage_blackout:
             dropped = self.stage_queue.clear_queue()
             self.stage_queue.interrupt_delay()
+            if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+                self.ndi_adapter.set_blackout(True)
             await self.ws_hub.broadcast_stage_blackout(is_blackout=True)
             logger.info("Stage blackout ENGAGED. Dropped %d queued cards.", dropped)
         else:
+            if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+                self.ndi_adapter.set_blackout(False)
             await self.ws_hub.broadcast_stage_blackout(is_blackout=False)
             logger.info("Stage blackout DISENGAGED. Resumed stage overlays.")
 
@@ -320,6 +338,8 @@ class VerbaClearOrchestrator:
     async def dismiss_stage_card(self) -> None:
         """Dismisses the active lower-third stage overlay card early and pops next queued item."""
         self.stage_queue.interrupt_delay()
+        if hasattr(self, "ndi_adapter") and self.ndi_adapter:
+            self.ndi_adapter.dismiss_card()
         await self.ws_hub.broadcast_stage_dismiss()
         logger.info("Stage card dismissed early by operator.")
 
@@ -370,10 +390,19 @@ class VerbaClearOrchestrator:
             self.active_pack_id = self.pack_manager.active_pack_id
         return success
 
+    def set_sensitivity(self, level: str, custom_rank: Optional[int] = None) -> dict:
+        """Tuning CEFR vocabulary sensitivity level (B1, B2, C1, C2) or custom rank threshold."""
+        return self.lexical_filter.set_sensitivity(level, custom_rank=custom_rank)
+
+    def get_sensitivity(self) -> dict:
+        """Returns the active CEFR sensitivity configuration."""
+        return self.lexical_filter.get_sensitivity()
+
     def get_telemetry(self) -> dict:
         """Returns snapshot of real-time appliance performance metrics."""
         metrics = self.audio_pipeline.metrics
         dev_info = self.audio_pipeline.get_current_device_info()
+        ndi_status = self.ndi_adapter.get_status() if hasattr(self, "ndi_adapter") and self.ndi_adapter else None
         return {
             "sessionId": self.session_id,
             "isActive": self._is_active,
@@ -399,5 +428,7 @@ class VerbaClearOrchestrator:
             "isStageBlackout": self.is_stage_blackout,
             "activePackId": self.active_pack_id,
             "activePackBadge": self.pack_manager.active_pack_badge,
+            "ndi": ndi_status,
+            "sensitivity": self.get_sensitivity(),
         }
 

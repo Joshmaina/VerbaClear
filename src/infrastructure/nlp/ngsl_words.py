@@ -90,3 +90,36 @@ CORE_NGSL_WORDS = [
     "smart", "access", "portal", "link", "user", "client", "customer", "member", "partner", "feature",
     "interface", "button", "input", "output", "display", "setting", "profile", "account", "status",
 ]
+
+# CEFR Tier B1 (Intermediate, Rank ~1,000 - 2,500)
+# Explains technical/scholarly intermediate terms for general/ESL audiences
+TIER_B1_WORDS = [
+    "topology", "methodology", "infrastructure", "hypothesis", "protocol", "synthesis",
+    "comprehensive", "empirical", "precedent", "criterion", "simulate", "aggregate",
+    "arbitrary", "parameter", "paradox", "hierarchy", "matrix", "catalyst",
+    "trajectory", "spectrum", "anomaly", "correlation", "derivative", "equilibrium",
+    "flux", "gradient", "iteration", "kinetic", "linear", "logarithmic",
+    "macro", "micro", "modality", "nexus", "optimum", "parallel", "quantum",
+    "resonance", "stochastic", "taxonomy", "velocity", "yield",
+]
+
+# CEFR Tier B2 (Upper Intermediate / Professional Keynote Baseline, Rank ~2,501 - 5,000)
+# Standard professional terminology recognized by fluent industry speakers
+TIER_B2_WORDS = [
+    "paradigm", "synergy", "bandwidth", "mitigate", "leverage", "heuristic",
+    "asynchronous", "redundant", "modularity", "scalability", "concurrency", "bottleneck",
+    "telemetry", "granular", "orthogonal", "cohesion", "decouple", "encapsulate",
+    "immutable", "idempotent", "latency", "monolith", "obviate", "pipeline",
+    "quarantine", "resilience", "throughput", "unilateral", "vector", "workload",
+]
+
+# CEFR Tier C1 (Advanced / Executive, Rank ~5,001 - 7,500)
+# Sophisticated literary and academic vocabulary
+TIER_C1_WORDS = [
+    "ubiquitous", "ephemeral", "ameliorate", "plethora", "superfluous", "antithetical",
+    "quintessential", "juxtaposition", "anachronism", "dichotomy", "vicarious", "serendipity",
+    "perfunctory", "magnanimous", "fastidious", "circumspect", "acquiesce", "belligerent",
+    "cacophony", "deleterious", "enervate", "garrulous", "harangue", "iconoclast",
+    "juxtapose", "laconic", "malleable", "nefarious", "ostentatious", "pernicious",
+    "querulous", "recalcitrant", "salient", "trepidation", "usurp", "vacillate", "zealous",
+]
