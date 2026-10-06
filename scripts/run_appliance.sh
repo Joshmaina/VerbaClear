@@ -20,7 +20,15 @@ if command -v hostname >/dev/null 2>&1; then
     fi
 fi
 
-PORT="${VERBACLEAR_PORT:-8000}"
+PORT="${VERBACLEAR_PORT:-}"
+if [ -z "$PORT" ]; then
+    if command -v ss >/dev/null 2>&1 && ss -tulpn 2>/dev/null | grep -q ":8000 "; then
+        PORT="8888"
+        echo "[INFO] Port 8000 is occupied by another local service; automatically binding to port 8888."
+    else
+        PORT="8000"
+    fi
+fi
 HOST="${VERBACLEAR_HOST:-0.0.0.0}"
 
 echo "============================================================"

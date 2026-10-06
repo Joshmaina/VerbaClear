@@ -109,12 +109,29 @@ def run_diagnostics():
     print()
 
 
+def is_port_in_use(port: int, host: str = "0.0.0.0") -> bool:
+    """Checks whether a TCP port is already bound on the host."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind((host, port))
+            return False
+        except OSError:
+            return True
+
+
 def start_appliance(args):
     """Launches the full live VerbaClear speech intelligence daemon."""
     from src.api.main import app, orchestrator
 
     local_ip = get_local_ip() if not args.host_ip else args.host_ip
     port = args.port
+
+    # Gracefully switch port if default 8000 is occupied by another host service
+    if port == 8000 and is_port_in_use(8000, args.host):
+        port = 8888
+        args.port = 8888
+        print("[INFO] Port 8000 is occupied by another host service; automatically switching to port 8888.\n")
 
     admin_url = f"http://{local_ip}:{port}/admin"
     stage_url = f"http://{local_ip}:{port}/stage"
