@@ -139,9 +139,23 @@ Start the real-time processing engine and broadcast hub:
 ```
 
 ### 3. Sound Booth Operator Endpoints
-Once running, the appliance exposes three zero-install surfaces on the venue local network:
-- **AV Operator Control Room (`/admin`)**: Hardware input device selection, real-time signal oscilloscope, Silero VAD gating, persistent stage blackout toggle, manual card injection, domain context pack upload/management, and post-event transcript downloads.
-- **Stage Lower-Third Overlay (`/stage`)**: Transparent chroma-key / NDI window for OBS Studio, vMix, and secondary stage displays. Auto-fades cards with 7-second spring animations.
+Once running, the appliance exposes four zero-install surfaces on the venue local network:
+- **AV Operator Control Room (`/admin`)**: Hardware input device selection, real-time signal oscilloscope, Silero VAD gating, persistent stage blackout toggle, manual card injection, domain context pack upload/management, CEFR vocabulary demographic slider (B1/B2/C1/C2), NDI stream controls, and post-event transcript downloads.
+- **Stage Lower-Third Overlay (`/stage`)**: Transparent chroma-key window for OBS Studio, vMix, and secondary stage displays. Auto-fades cards with 7-second spring animations.
+- **Native NDI & HTTP Alpha Stream (`/api/broadcast/stream/alpha` & `/api/broadcast/frame`)**: Zero-halo 1080p RGBA transparent video broadcast output for NewTek NDI video switchers and direct OBS/vMix inputs.
 - **Attendee Mobile Companion PWA (`/companion`)**: Accessible via QR code (`/api/session/qr`). Operates 100% offline via Service Worker & IndexedDB, supporting real-time card streaming, search, bookmarks, and one-tap Anki (`.apkg`) export.
 - **Post-Event Analytics & Subtitle Transcripts (`/api/export/transcript` & `/api/export/session-report`)**: Instant export to WebVTT (`.vtt`), SubRip (`.srt`), plain text (`.txt`), and full readability & simplification analytics JSON for video editors.
+
+### 4. CLI Appliance Operations
+VerbaClear includes a fast, zero-dependency command line interface:
+```bash
+# Start appliance with live microphone audio and specific context pack
+verbaclear --start-audio --pack fintech --port 8000
+
+# Inspect and enumerate all host audio hardware devices
+verbaclear devices
+
+# Run appliance diagnostic check (models, PortAudio drivers, database, directories)
+verbaclear diagnose
+```
 
